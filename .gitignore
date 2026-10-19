@@ -1,0 +1,4 @@
+tools/
+assets/*/sheet.png
+assets/*/ficha.png
+*.pyc

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Barba vs Fumaça</title>
+<meta name="theme-color" content="#0d0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Barba vs Fumaça">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="wrap">
+  <canvas id="screen" width="960" height="540"></canvas>
+  <div id="touch" class="hidden">
+    <div id="stick"><div id="knob"></div></div>
+    <div id="btns">
+      <button class="tb" id="bPunch" data-k="punch">Soco</button>
+      <button class="tb" id="bKick" data-k="kick">Chute</button>
+      <button class="tb" id="bSpecial" data-k="special">Especial</button>
+    </div>
+  </div>
+  <div id="topbar">
+    <button id="bPause" class="hidden" aria-label="Pausar">❚❚</button>
+    <button id="bMute" aria-label="Som">🔊</button>
+  </div>
+</div>
+<div id="rotate"><div class="phone">📱</div><p>Gire o celular para jogar na horizontal</p></div>
+<script src="js/audio.js"></script>
+<script src="js/input.js"></script>
+<script src="js/stage.js"></script>
+<script src="js/fighters.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
