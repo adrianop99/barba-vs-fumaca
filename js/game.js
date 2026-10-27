@@ -1,6 +1,6 @@
 'use strict';
 const GAME_TITLE = 'Barba vs Fumaça';
-const VERSION = 'v0.1';
+const VERSION = 'v0.3';
 const VW = 960, VH = 540;
 const canvas = document.getElementById('screen');
 const ctx = canvas.getContext('2d');
@@ -80,7 +80,7 @@ function activate(id) {
     case 'cpu': G.mode = 'cpu'; go('diff'); G.menuSel = ['facil', 'normal', 'dificil'].indexOf(G.diff); break;
     case 'pvp': G.mode = 'pvp'; startSelect(); break;
     case 'facil': case 'normal': case 'dificil': G.diff = id; localStorage.setItem('bvf_diff', id); startSelect(); break;
-    case 'card0': case 'card1': selectCard(+id.slice(4)); break;
+    case 'card0': case 'card1': case 'card2': selectCard(+id.slice(4)); break;
     case 'back': back(); break;
     case 'resume': G.paused = false; updateOverlay(); break;
     case 'restart': G.paused = false; startMatch(); break;
@@ -94,7 +94,7 @@ function back() {
   else if (G.scene === 'select') { if (G.selStep === 1) { G.selStep = 0; } else go(G.mode === 'cpu' ? 'diff' : 'mode'); }
 }
 function startSelect() { go('select'); G.selStep = 0; G.selCur = [CHAR_IDS.indexOf(G.pick[0]), CHAR_IDS.indexOf(G.pick[1])]; }
-const CHAR_IDS = ['mukira', 'jogador'];
+const CHAR_IDS = ['mukira', 'jogador', 'lobo'];
 function selectCard(i) {
   if (G.selStep === 0) { G.pick[0] = CHAR_IDS[i]; G.selCur[0] = i; G.selStep = 1; }
   else { G.pick[1] = CHAR_IDS[i]; G.selCur[1] = i; startMatch(); }
@@ -144,7 +144,7 @@ function updateFight() {
     const w = G.roundWinner;
     const settled = G.fighters.every(f => !f.air && !['hit', 'block', 'attack', 'fall'].includes(f.state));
     if ((G.rt > 90 && settled) || G.rt > 240) {
-      if (w >= 0) { G.wins[w]++; G.fighters[w].setState('win'); }
+      if (w >= 0) { G.wins[w]++; G.fighters[w].setState('win'); G.fighters[w].winPose = G.round - 1; }
       else { G.wins[0]++; G.wins[1]++; }
       if (G.roundReason === 'time') G.fighters.forEach((f, i) => { if (i !== w) f.setState('timeup'); });
       G.rstate = 'end'; G.rt = 0;
@@ -196,6 +196,7 @@ G.checkHit = function (att, def, hit) {
 };
 function applyHit(att, def, hit, cx, cy, dir, isProj) {
   const lvl = hit.lvl || 'mid';
+  if (!hit.nomtr) { const blk = def.isBlocking(att, lvl); att.meter = Math.min(200, att.meter + hit.dmg * (blk ? 0.05 : 0.14)); def.meter = Math.min(200, def.meter + hit.dmg * 0.07); }
   if (def.isBlocking(att, lvl)) {
     def.setState('block'); def.stun = hit.bstun; def.crouching = !!def.prev.down; def.pushV = dir * hit.push * 1.1; def.vx = 0;
     if (hit.chip) def.hp = Math.max(0, def.hp - Math.round(hit.dmg * hit.chip / 100));
@@ -221,8 +222,9 @@ function applyHit(att, def, hit, cx, cy, dir, isProj) {
 function isWall(f) { return f.x <= WALL_L + 4 || f.x >= WALL_R - 4; }
 function updateProjectiles() {
   for (const p of G.projectiles) {
-    p.x += p.vx; p.t++;
     const def = G.fighters.find(f => f !== p.owner);
+    if (p.kind) { updateLoboProj(p, def); continue; }
+    p.x += p.vx; p.t++;
     if (G.frame % 2 === 0) G.particles.push({ x: p.x - Math.sign(p.vx) * 14, y: p.y + (Math.random() - 0.5) * 30, vx: -p.vx * 0.1, vy: -0.3, r: 6 + Math.random() * 6, life: 40, t: 0, a: 0.5 });
     const box = { x0: p.x - 14, x1: p.x + 14, y0: p.y - 34, y1: p.y + 34 };
     if (!p.dead && def.inv <= 0 && !['fall', 'down', 'ko', 'getup'].includes(def.state) && overlap(box, def.hurtbox())) {
@@ -234,6 +236,29 @@ function updateProjectiles() {
     if (p.x < -60 || p.x > VW + 60) p.dead = true;
   }
   G.projectiles = G.projectiles.filter(p => !p.dead);
+}
+// Lobo projectiles: wave (Alpha Claw Slash), dog (Dog Throw -> Yorkshire Attack, latches and bites up to 3x), pack (Alpha Pack super)
+function updateLoboProj(p, def) {
+  const P = p.P; p.t++; if (p.hcd > 0) p.hcd--;
+  if (p.stick) { p.x = def.x - p.dir * 30; if (['fall', 'down', 'ko', 'getup'].includes(def.state) || p.t - p.stickT > 40) p.dead = true; }
+  else p.x += p.vx;
+  if (p.kind === 'wave' && G.frame % 3 === 0) G.particles.push({ x: p.x - p.dir * 30, y: p.y + (Math.random() - 0.5) * 80, vx: -p.vx * 0.15, vy: -0.4, r: 3, life: 18, t: 0, a: 0.7, blue: 1 });
+  const box = { x0: p.x - P.bw, x1: p.x + P.bw, y0: p.y - P.bh, y1: p.y + P.bh };
+  if (!p.dead && p.hcd <= 0 && def.inv <= 0 && !['fall', 'down', 'ko', 'getup'].includes(def.state) && overlap(box, def.hurtbox())) {
+    p.hits++; const last = p.hits >= (P.maxHits || 1);
+    const res = applyHit(p.owner, def, { dmg: P.dmg, stun: P.stun, bstun: P.bstun, push: last ? P.push * 2 : P.push, chip: P.chip, heavy: P.heavy || (last && P.knockLast), knock: last && P.knockLast ? 1 : 0, nomtr: P.nomtr }, p.x, p.y, p.dir, true);
+    if (p.kind === 'dog') { if (res === 'hit' && !last) { p.stick = true; p.stickT = p.t; p.vx = 0; p.hcd = P.gap; SFX.play('bark'); } else p.dead = true; }
+    else if (last || (res === 'block' && !P.pierce)) p.dead = true; else p.hcd = P.gap;
+  }
+  if (P.life && p.t > P.life) p.dead = true;
+  if (p.x < -200 || p.x > VW + 200) p.dead = true;
+}
+function drawLoboProj(p) {
+  const S = Sprites.lobo; const anim = p.kind === 'wave' ? 'wave' : p.kind === 'pack' ? 'super2' : p.stick ? 'dogatk' : 'dogfly';
+  const m = S.meta[anim][0]; const shake = p.stick ? Math.sin(p.t * 1.3) * 3 : 0;
+  ctx.save(); if (p.kind === 'pack') ctx.globalAlpha = 0.92;
+  drawFrame(ctx, { id: 'lobo', x: p.x + shake, y: p.y + m.h / 2, facing: p.dir, tinted: p.owner.tinted }, anim, 0, {});
+  ctx.restore();
 }
 G.smogOn = me => G.smog.some(s => s.victim === me && s.t < 75);
 G.dust = x => { for (let i = 0; i < 6; i++) G.particles.push({ x: x + (Math.random() - 0.5) * 50, y: FLOOR - 4, vx: (Math.random() - 0.5) * 2, vy: -Math.random() * 1.2, r: 5 + Math.random() * 5, life: 26, t: 0, a: 0.45, dust: 1 }); };
@@ -264,18 +289,21 @@ function drawFight() {
   const fs = [...G.fighters].sort((p, q) => (p.state === 'attack') - (q.state === 'attack'));
   for (const f of fs) drawFighter(ctx, f, G);
   for (const p of G.particles) drawPuff(p);
-  for (const p of G.projectiles) drawRing(p);
+  for (const p of G.projectiles) p.kind ? drawLoboProj(p) : drawRing(p);
   for (const s of G.sparks) drawSpark(s);
   for (const s of G.smog) drawSmog(s);
   if (G.showBoxes) drawBoxes();
   ctx.restore();
+  if (G.superFlash) { const sf = G.superFlash; sf.t++; if (sf.t > 46) G.superFlash = null; else {
+    ctx.save(); ctx.globalAlpha = sf.t < 26 ? 0.5 : 0.5 * (1 - (sf.t - 26) / 20); ctx.fillStyle = '#04102a'; ctx.fillRect(0, 0, VW, VH); ctx.restore();
+    if (sf.t < 26) { drawFighter(ctx, sf.f, G); ctx.save(); ctx.globalAlpha = Math.min(1, sf.t / 6); bigText(sf.name, 200, 58, '#bfe8ff', '#2a7bff'); ctx.restore(); } } }
   drawHUD();
   if (G.banner) { G.banner.t++; const b = G.banner, k = Math.min(1, b.t / 8);
     ctx.save(); ctx.globalAlpha = k; bigText(b.text, 230, b.big ? 120 : 84, b.text === 'K.O.' ? '#ffffff' : '#ffe14d', b.text === 'K.O.' ? '#ff2a2a' : '#ff4b1f');
     if (b.sub) txt(b.sub, VW / 2, 300, 30, '#fff'); ctx.restore(); }
 }
 function drawPuff(p) {
-  const k = 1 - p.t / p.life; ctx.save(); ctx.globalAlpha = p.a * k; ctx.fillStyle = p.dust ? '#8c8296' : '#d8d4dc';
+  const k = 1 - p.t / p.life; ctx.save(); ctx.globalAlpha = p.a * k; ctx.fillStyle = p.blue ? '#8fd0ff' : p.dust ? '#8c8296' : '#d8d4dc';
   const r = Math.round(p.r); ctx.fillRect(Math.round(p.x - r), Math.round(p.y - r), r * 2, r * 2 * 0.8); ctx.globalAlpha *= 0.6; ctx.fillRect(Math.round(p.x - r * 0.7), Math.round(p.y - r * 1.2), r * 1.4, r * 2.4); ctx.restore();
 }
 function drawRing(p) {
@@ -311,7 +339,7 @@ function drawBoxes() {
   ctx.restore();
 }
 function portrait(f, x, y, flip) {
-  const S = Sprites[f.id]; if (!S) return; const m = S.meta[f.id === 'mukira' ? 'idle' : 'stance'][0];
+  const S = Sprites[f.id]; if (!S) return; const m = S.meta[f.id === 'jogador' ? 'stance' : 'idle'][0];
   ctx.save(); ctx.fillStyle = '#120c24'; ctx.fillRect(x, y, 60, 60); ctx.beginPath(); ctx.rect(x, y, 60, 60); ctx.clip();
   const sx = m.x + m.ax - 26 + (f.id === 'jogador' ? 2 : 0);
   ctx.translate(x + 30, y); ctx.scale(flip ? -1 : 1, 1); ctx.drawImage(f.tinted ? S.tint : S.img, sx, m.y, 52, 52, -30, 2, 60, 60); ctx.restore();
@@ -327,10 +355,14 @@ function drawHUD() {
     const gr = ctx.createLinearGradient(0, y, 0, y + H); gr.addColorStop(0, '#fff27a'); gr.addColorStop(1, '#f0a400'); ctx.fillStyle = gr;
     flip ? ctx.fillRect(x, y, W * frac, H) : ctx.fillRect(x + W * (1 - frac), y, W * frac, H);
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(x, y, W, H);
-    txt(f.c.name, flip ? x + W : x, y + H + 16, 20, '#fff', flip ? 'right' : 'left', '900', 4);
+    txt(f.c.hud || f.c.name, flip ? x + W : x, y + H + 16, 20, '#fff', flip ? 'right' : 'left', '900', 4);
     for (let i = 0; i < 2; i++) { const cx = flip ? x + W - 130 - i * 22 : x + 130 + i * 22; ctx.fillStyle = G.wins[f.side] > i ? '#ffd23a' : '#2a2140'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, y + H + 16, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
     if (f.id === 'jogador') { const k = 1 - f.cool / f.c.proj.cooldown; const bx = flip ? x + W - 110 : x + 230; ctx.fillStyle = '#000'; ctx.fillRect(bx - 1, y + H + 30, 112, 9); ctx.fillStyle = k >= 1 ? '#e8e4ec' : '#6c6478'; ctx.fillRect(bx, y + H + 31, 110 * k, 7); txt('FUMAÇA', bx + 55, y + H + 47, 11, k >= 1 ? '#fff' : '#9a90a8', 'center', '800', 3); }
   };
+  for (const f of G.fighters) if (f.id === 'lobo') { const flip = f.side === 1, x = flip ? VW - 76 - 340 : 76, y = 22, bx = flip ? x + 340 - 150 : x + 190;
+    ctx.fillStyle = '#000'; ctx.fillRect(bx - 2, y + 51, 154, 11);
+    for (let i = 0; i < 2; i++) { const k = Math.max(0, Math.min(1, (f.meter - i * 100) / 100)); ctx.fillStyle = '#123'; ctx.fillRect(bx + i * 76, y + 52, 74, 9); ctx.fillStyle = k >= 1 ? (G.frame & 8 ? '#7fe0ff' : '#2a8bff') : '#2a5a8a'; ctx.fillRect(bx + i * 76, y + 52, 74 * k, 9); }
+    txt('ALPHA ' + Math.floor(f.meter / 100), bx + 76, y + 72, 11, f.meter >= 100 ? '#bfe8ff' : '#7a8aa8', 'center', '800', 3); }
   portrait(a, 8, 8, false); portrait(b, VW - 68, 8, true);
   bar(a, 76, false); bar(b, VW - 76 - 340, true);
   ctx.fillStyle = '#000'; ctx.fillRect(VW / 2 - 34, 12, 68, 52); ctx.strokeStyle = '#ffd23a'; ctx.lineWidth = 3; ctx.strokeRect(VW / 2 - 34, 12, 68, 52);
@@ -343,10 +375,11 @@ function drawTitle() {
   Stage.draw(ctx, G.frame); ctx.fillStyle = 'rgba(8,4,20,0.45)'; ctx.fillRect(0, 0, VW, VH);
   if (Sprites.ready) {
     drawFrame(ctx, { id: 'mukira', x: 250, y: 500, facing: 1 }, 'whip', 2, {});
-    drawFrame(ctx, { id: 'jogador', x: 720, y: 500, facing: -1 }, 'ring', 0, {});
+    drawFrame(ctx, { id: 'jogador', x: 760, y: 500, facing: -1 }, 'ring', 0, {});
+    drawFrame(ctx, { id: 'lobo', x: 500, y: 520, facing: 1 }, 'win1', 0, {});
   }
   bigText(GAME_TITLE.toUpperCase(), 110, 76);
-  txt('MUKIRA  ×  JOGADOR', VW / 2, 172, 26, '#fff', 'center', '900', 5);
+  txt('MUKIRA  ×  JOGADOR  ×  LOBO SOLITÁRIO', VW / 2, 172, 26, '#fff', 'center', '900', 5);
   if (Math.floor(G.frame / 30) % 2 === 0) txt(Input.isTouchDevice() ? 'TOQUE PARA COMEÇAR' : 'APERTE ENTER OU CLIQUE', VW / 2, 232, 30, '#ffd23a', 'center', '900', 5);
   txt('PC: P1 WASD + F G H  ·  P2 Setas + J K L  ·  Esc pausa', VW / 2, 474, 14, '#cbbfff', 'center', '600', 3);
   txt('by @aiforge.team', VW - 12, 18, 13, '#cbbfff', 'right', '600', 3);
@@ -369,26 +402,28 @@ function drawSelect() {
   const who = G.selStep === 0 ? (G.mode === 'cpu' ? 'ESCOLHA SEU LUTADOR' : 'JOGADOR 1: ESCOLHA') : (G.mode === 'cpu' ? 'ESCOLHA O ADVERSÁRIO (CPU)' : 'JOGADOR 2: ESCOLHA');
   bigText(who, 62, 40);
   CHAR_IDS.forEach((id, i) => {
-    const x = 170 + i * 330, y = 110, w = 290, h = 340, sel = G.selCur[G.selStep] === i;
+    const x = 45 + i * 300, y = 100, w = 270, h = 340, sel = G.selCur[G.selStep] === i;
     G.buttons.push({ id: 'card' + i, x, y, w, h });
     ctx.save(); ctx.fillStyle = sel ? 'rgba(255,200,40,0.25)' : 'rgba(20,14,40,0.8)'; ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = sel ? '#ffd23a' : 'rgba(255,255,255,0.4)'; ctx.lineWidth = sel ? 5 : 2; ctx.strokeRect(x, y, w, h); ctx.restore();
     const tinted = G.selStep === 1 && G.pick[0] === id;
-    if (Sprites.ready) drawFrame(ctx, { id, x: x + w / 2, y: y + h - 70, facing: i === 0 ? 1 : -1, tinted }, id === 'mukira' ? 'idle' : 'stance', id === 'mukira' ? cyc(G.frame, 4, 12) : 0, {});
-    txt(CHARS[id].name, x + w / 2, y + h - 46, 28, '#fff', 'center', '900', 5);
+    if (Sprites.ready) drawFrame(ctx, { id, x: x + w / 2, y: y + h - 70, facing: i === 1 ? -1 : 1, tinted }, id === 'jogador' ? 'stance' : 'idle', id === 'mukira' ? cyc(G.frame, 4, 12) : 0, {});
+    txt(CHARS[id].name, x + w / 2, y + h - 46, id === 'lobo' ? 24 : 28, '#fff', 'center', '900', 5);
     txt(CHARS[id].title, x + w / 2, y + h - 18, 15, '#cbbfff', 'center', '700', 3);
     if (G.selStep === 1 && G.pick[0] === id) txt('P1', x + 22, y + 20, 18, '#3cf', 'center', '900', 4);
     if (sel) txt(G.selStep === 0 ? 'P1' : (G.mode === 'cpu' ? 'CPU' : 'P2'), x + w - 28, y + 20, 18, '#ffd23a', 'center', '900', 4);
   });
   if (G.selStep === 1 && CHAR_IDS[G.selCur[1]] === G.pick[0]) txt('Espelho: o adversário usa outras cores', VW / 2, 474, 15, '#cbbfff', 'center', '600', 3);
-  const info = G.selCur[G.selStep] === 0 ? 'Especial: chicote de barba de longo alcance (Especial ou ↘ + Soco)' : 'Especial: anel de fumaça que atravessa a tela e cega (Especial ou ↘ + Soco)';
-  txt(info, VW / 2, 500, 15, '#fff', 'center', '600', 3);
+  const info = ['Especial: chicote de barba de longo alcance (Especial ou ↘ + Soco)', 'Especial: anel de fumaça que atravessa a tela e cega (Especial ou ↘ + Soco)',
+    'Especial: garra azul · Esp+← cachorro · Esp+→ investida · Esp+↓ rasteira'][G.selCur[G.selStep]];
+  txt(info, VW / 2, 494, 15, '#fff', 'center', '600', 3);
+  if (CHAR_IDS[G.selCur[G.selStep]] === 'lobo') txt('Soco+Chute: ataque duplo · Supers (barra ALPHA): Especial+Soco · Especial+Chute', VW / 2, 516, 14, '#bfe8ff', 'center', '600', 3);
   button('back', '‹', 20, VH - 64, 50, 48, false);
 }
 function drawResult() {
   dimBg(); const r = G.lastResult;
   if (r && r.winner >= 0) { const f = G.fighters[r.winner]; bigText('VITÓRIA!', 90, 80); txt(f.c.name + ' VENCE A LUTA', VW / 2, 160, 32, '#fff', 'center', '900', 5);
-    if (Sprites.ready) drawFrame(ctx, { ...f, x: 190, y: 470, facing: 1, tinted: f.tinted }, f.id === 'mukira' ? 'whip' : 'front', f.id === 'mukira' ? 3 : 0, {});
+    if (Sprites.ready) drawFrame(ctx, { ...f, x: 190, y: 470, facing: 1, tinted: f.tinted }, f.id === 'mukira' ? 'whip' : f.id === 'lobo' ? 'win1' : 'front', f.id === 'mukira' ? 3 : 0, {});
     if (G.mode === 'cpu') txt(r.winner === 0 ? 'Você venceu a CPU!' : 'A CPU venceu. Tenta de novo!', VW / 2, 200, 20, '#ffd23a', 'center', '800', 4); }
   else { bigText('EMPATE', 100, 80); }
   menu([{ id: 'rematch', label: 'Revanche' }, { id: 'chars', label: 'Trocar lutadores' }, { id: 'home', label: 'Menu inicial' }], VW / 2 + 40, 250, 300, 58, 12);
@@ -398,6 +433,7 @@ function drawPause() {
   menu([{ id: 'resume', label: 'Continuar' }, { id: 'restart', label: 'Reiniciar luta' }, { id: 'home', label: 'Menu inicial' }], VW / 2 - 160, 190, 320, 60, 14);
   txt('Controles: ← → andar · ↑ pular · ↓ agachar · segurar para trás = defender', VW / 2, 440, 15, '#fff', 'center', '600', 3);
   txt('Soco · Chute · Especial  (↘ + Soco também solta o especial)  ·  → + Soco = soco forte', VW / 2, 466, 15, '#fff', 'center', '600', 3);
+  if (G.fighters.some(f => f.id === 'lobo')) txt('Lobo: Especial (+← cachorro, +→ investida, +↓ rasteira) · Soco+Chute duplo · Especial+Soco super 1 · Especial+Chute super 2', VW / 2, 492, 13, '#bfe8ff', 'center', '600', 3);
 }
 
 // ---------- menu keyboard ----------
@@ -411,7 +447,7 @@ function handleMenuKeys() {
     }
     if (G.scene === 'title') { if (k === 'ok') activate('start'); continue; }
     if (G.scene === 'select') {
-      if (k === 'left' || k === 'right') { G.selCur[G.selStep] = k === 'left' ? 0 : 1; SFX.play('move'); }
+      if (k === 'left' || k === 'right') { const n = CHAR_IDS.length; G.selCur[G.selStep] = (G.selCur[G.selStep] + (k === 'left' ? n - 1 : 1)) % n; SFX.play('move'); }
       else if (k === 'ok') selectCard(G.selCur[G.selStep]); else if (k === 'back') back();
       continue;
     }
@@ -473,8 +509,8 @@ G.debug = {
   step(n = 1) { for (let i = 0; i < n; i++) step(); render(); },
   activate,
   info() { return { scene: G.scene, rstate: G.rstate, round: G.round, wins: [...G.wins], timer: G.timer, paused: G.paused,
-    f: G.fighters.map(f => ({ id: f.id, x: Math.round(f.x), y: Math.round(f.y), hp: f.hp, state: f.state, move: f.moveName && f.move ? f.moveName : null, facing: f.facing, cool: f.cool })),
-    proj: G.projectiles.length, smog: G.smog.length, result: G.lastResult }; },
+    f: G.fighters.map(f => ({ id: f.id, x: Math.round(f.x), y: Math.round(f.y), hp: f.hp, state: f.state, move: f.moveName && f.move ? f.moveName : null, facing: f.facing, cool: f.cool, meter: Math.round(f.meter) })),
+    proj: G.projectiles.length, projKinds: G.projectiles.map(p => p.kind || 'ring'), superFlash: !!G.superFlash, smog: G.smog.length, result: G.lastResult }; },
 };
 loadSprites().then(() => { go('title'); }).catch(e => { G.errors.push(String(e)); G.scene = 'loading'; console.error(e); });
 requestAnimationFrame(loop);

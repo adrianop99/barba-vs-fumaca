@@ -38,13 +38,42 @@ const CHARS = {
     },
     proj: { speed: 6.5, dmg: 80, stun: 22, bstun: 14, push: 9, chip: 10, cooldown: 110 },
   },
+  lobo: {
+    id: 'lobo', name: 'LOBO SOLITÁRIO', hud: 'LOBO', title: 'The Lone Alpha (+ Yorkshire)', hp: 1000, walkF: 3.3, walkB: 2.8, jumpVX: 4.0, jumpVY: -15.2,
+    standH: 205, crouchH: 140, special: 'lobo', lobo: 1,
+    moves: {
+      lp: mv({ anim: 'jab', frames: [{ f: 0, d: 3, anim: 'guard' }, { f: 0, d: 4, a: 1 }, { f: 0, d: 7, anim: 'guard' }], hit: { x0: 25, x1: 92, y0: -175, y1: -135, dmg: 45, stun: 15, bstun: 10, push: 5 }, sfx: 'whoosh' }),
+      hp: mv({ anim: 'fierce', frames: [{ f: 0, d: 6, anim: 'strong' }, { f: 0, d: 6, a: 1 }, { f: 0, d: 12, anim: 'strong' }], hit: { x0: 30, x1: 112, y0: -170, y1: -120, dmg: 80, stun: 19, bstun: 12, push: 8, heavy: 1 }, sfx: 'whoosh' }),
+      lk: mv({ anim: 'claw', frames: [{ f: 0, d: 5, anim: 'strong' }, { f: 0, d: 6, a: 1 }, { f: 0, d: 11, anim: 'guard' }], hit: { x0: 40, x1: 145, y0: -168, y1: -100, dmg: 70, stun: 17, bstun: 11, push: 7 }, sfx: 'whip' }),
+      cp: mv({ anim: 'clp', crouch: 1, frames: [{ f: 0, d: 3, anim: 'crouch' }, { f: 0, d: 4, a: 1, anim: 'cmp' }, { f: 0, d: 7, anim: 'clp' }], hit: { x0: 25, x1: 100, y0: -118, y1: -80, dmg: 40, stun: 13, bstun: 9, push: 5 }, sfx: 'whoosh' }),
+      ck: mv({ anim: 'lowk', crouch: 1, frames: [{ f: 0, d: 5, anim: 'chp' }, { f: 0, d: 5, a: 1 }, { f: 0, d: 12, anim: 'crouch' }], hit: { x0: 35, x1: 150, y0: -40, y1: 0, dmg: 50, stun: 15, bstun: 11, push: 6, lvl: 'low' }, sfx: 'whoosh' }),
+      jp: mv({ anim: 'jab', air: 1, frames: [{ f: 0, d: 3, anim: 'jump' }, { f: 0, d: 30, a: 1, v: { oy: -14 } }], hit: { x0: 20, x1: 90, y0: -170, y1: -110, dmg: 55, stun: 16, bstun: 10, push: 4, lvl: 'high' }, sfx: 'whoosh' }),
+      jk: mv({ anim: 'lowk', air: 1, frames: [{ f: 0, d: 4, anim: 'jump' }, { f: 0, d: 30, a: 1, v: { oy: -40 } }], hit: { x0: 35, x1: 140, y0: -120, y1: -50, dmg: 65, stun: 17, bstun: 11, push: 5, lvl: 'high' }, sfx: 'whoosh' }),
+      slash: mv({ anim: 'slash', special: 1, frames: [{ f: 0, d: 9, anim: 'fierce' }, { f: 0, d: 14, spawn: 'wave', sfx: 'whip' }, { f: 0, d: 10, anim: 'guard' }], hit: null }),
+      throw: mv({ anim: 'throw', special: 1, frames: [{ f: 0, d: 8, anim: 'strong' }, { f: 0, d: 20, spawn: 'dog', sfx: 'bark' }, { f: 0, d: 6, anim: 'guard' }], hit: null }),
+      rush: mv({ anim: 'rush', special: 1, frames: [{ f: 0, d: 8, anim: 'crouch' }, { f: 0, d: 16, a: 1, vx: 9, sfx: 'whoosh' }, { f: 0, d: 16, anim: 'guard', vx: 0 }],
+        hit: { x0: 10, x1: 150, y0: -160, y1: -40, dmg: 90, stun: 22, bstun: 14, push: 10, heavy: 1, chip: 10, knock: 1 } }),
+      sweep: mv({ anim: 'sweep', special: 1, crouch: 1, frames: [{ f: 0, d: 9, anim: 'crouch' }, { f: 0, d: 12, a: 1, sfx: 'bark' }, { f: 0, d: 16, anim: 'crouch' }],
+        hit: { x0: 60, x1: 270, y0: -70, y1: 0, dmg: 70, stun: 20, bstun: 12, push: 8, lvl: 'low', chip: 8, knock: 1 } }),
+      double: mv({ anim: 'double', special: 1, frames: [{ f: 0, d: 10, anim: 'strong' }, { f: 0, d: 12, a: 1, sfx: 'bark' }, { f: 0, d: 20, anim: 'guard' }],
+        hit: { x0: 30, x1: 230, y0: -150, y1: -30, dmg: 100, stun: 22, bstun: 14, push: 10, heavy: 1, chip: 12, knock: 1 } }),
+      super1: mv({ anim: 'super1', special: 1, frames: [{ f: 0, d: 6, anim: 'guard' }, { f: 0, d: 10, a: 1, rh: 1, vx: 7 }, { f: 0, d: 10, a: 1, rh: 1, vx: 7 }, { f: 0, d: 10, a: 1, rh: 1, vx: 7, hb: { knock: 1, dmg: 90, heavy: 1, push: 10 } }, { f: 0, d: 18, anim: 'claw', vx: 0 }],
+        hit: { x0: 0, x1: 220, y0: -190, y1: 0, dmg: 70, stun: 26, bstun: 12, push: 3, chip: 15, nomtr: 1 } }),
+      super2: mv({ anim: 'claw', special: 1, frames: [{ f: 0, d: 14, anim: 'taunt', sfx: 'howl' }, { f: 0, d: 18, spawn: 'pack' }, { f: 0, d: 16, anim: 'guard' }], hit: null }),
+    },
+    projs: {
+      wave: { speed: 7, dmg: 75, stun: 22, bstun: 14, push: 9, chip: 10, cooldown: 100, ox: 110, oy: 110, bw: 26, bh: 60 },
+      dog: { speed: 8, dmg: 30, stun: 24, bstun: 14, push: 3, chip: 6, cooldown: 140, ox: 70, oy: 60, bw: 40, bh: 45, maxHits: 3, gap: 12, knockLast: 1, life: 140 },
+      pack: { speed: 6, dmg: 85, stun: 30, bstun: 16, push: 4, chip: 15, ox: 150, oy: 100, bw: 150, bh: 100, maxHits: 3, gap: 9, knockLast: 1, pierce: 1, nomtr: 1 },
+    },
+  },
 };
 
 // ---------- sprite assets ----------
 const Sprites = { ready: false };
 function loadImage(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('img ' + src)); i.src = src; }); }
 async function loadSprites() {
-  for (const id of ['mukira', 'jogador']) {
+  for (const id of ['mukira', 'jogador', 'lobo']) {
     const [img, meta] = await Promise.all([loadImage(`assets/${id}/atlas.png`), fetch(`assets/${id}/atlas.json`).then(r => r.json())]);
     Sprites[id] = { img, meta: meta.anims, tint: makeVariant(img, id, 'tint'), white: makeVariant(img, id, 'white') };
   }
@@ -56,6 +85,7 @@ function makeVariant(img, id, kind) {
   for (let i = 0; i < p.length; i += 4) {
     if (!p[i + 3]) continue; const r = p[i], gg = p[i + 1], b = p[i + 2];
     if (kind === 'white') { p[i] = p[i + 1] = p[i + 2] = 255; continue; }
+    if (id === 'lobo') { if (b > r + 25 && b > gg) { p[i] = Math.min(255, b + 10); p[i + 1] = Math.round(gg * 0.45); p[i + 2] = Math.round(r * 0.7); } continue; }
     if (id === 'mukira') { if (b > r + 25 && b > gg) { p[i] = b; p[i + 2] = Math.round(r * 0.6); p[i + 1] = Math.round(gg * 0.75); } }
     else { if (r > 90 && r > gg * 2.2 && r > b * 2.2) { p[i] = Math.round(gg * 0.5); p[i + 1] = r; p[i + 2] = Math.round(b * 0.8 + 20); }
       else if (b > 35 && b > r + 10 && b > gg) { p[i] = Math.min(255, r + 30); p[i + 1] = Math.round(gg * 0.8); p[i + 2] = Math.round(b * 0.6); } }
@@ -66,7 +96,7 @@ function makeVariant(img, id, kind) {
 // ---------- Fighter ----------
 class Fighter {
   constructor(charId, side, tinted) {
-    this.c = CHARS[charId]; this.id = charId; this.side = side; this.tinted = tinted;
+    this.c = CHARS[charId]; this.id = charId; this.side = side; this.tinted = tinted; this.meter = 0;
     this.reset(side);
   }
   reset(side) {
@@ -108,6 +138,7 @@ class Fighter {
     if (this.canAct()) this.facing = opp.x >= this.x ? 1 : -1;
     switch (this.state) {
       case 'idle': case 'walk': case 'crouch': {
+        if (this.c.lobo && this.loboInput(press, d, G)) break;
         const specialMotion = press.punch && (d === 3 || this.recentMotion());
         if (press.special || specialMotion) { if (this.trySpecial(G)) break; }
         if (d <= 3) { // crouch
@@ -128,7 +159,7 @@ class Fighter {
       case 'air':
         if (!this.airAtk && (press.punch || press.kick)) { this.airAtk = true; const keepVx = this.vx; this.startMove(press.punch ? 'jp' : 'jk', G); this.vx = keepVx; }
         break;
-      case 'attack': this.tickMove(opp, G); break;
+      case 'attack': if (this.c.lobo && this.mt < 4 && !this.move.air && (press.punch || press.kick || press.special) && this.loboInput(press, d, G, true)) break; this.tickMove(opp, G); break;
       case 'hit': case 'block': this.stun--; if (this.stun <= 0) this.setState(this.crouching && d <= 3 ? 'crouch' : 'idle'); break;
       case 'down': if (this.t > 38) { this.setState('getup'); } break;
       case 'getup': if (this.t > 28) { this.inv = 18; this.setState('idle'); } break;
@@ -137,18 +168,46 @@ class Fighter {
     this.physics(G);
   }
   recentMotion() { const h = this.dirHist.slice(-14); const i2 = h.lastIndexOf(2); return i2 >= 0 && h.slice(i2).some(v => v === 3) && (h[h.length - 1] === 6 || h[h.length - 1] === 3); }
+  motion(seq, n = 16) { const h = this.dirHist.slice(-n); let k = 0; for (const v of h) if (v === seq[k]) { k++; if (k === seq.length) return true; } return false; }
+  dashF() { const h = this.dirHist.slice(-16); let i = h.length - 1; if (h[i] !== 6) return false; while (i >= 0 && h[i] === 6) i--; let j = i; while (j >= 0 && h[j] !== 6 && h[j] === 5) j--; return j >= 0 && j < i && h[j] === 6 && i - j <= 10; }
+  // Lobo Solitário command list (keyboard + touch friendly). cancel=true: only P+K combos/supers in the first frames of a normal.
+  loboInput(press, d, G, cancel) {
+    const P = press.punch, K = press.kick, S = press.special, held = this.prev;
+    const q = this.motion([2, 3, 6]), qb = this.motion([2, 1, 4]);
+    if (this.meter >= 200 && ((S && held.kick) || (K && held.special) || (qb && ((P && held.kick) || (K && held.punch))))) return this.doSuper(2, G);
+    if (this.meter >= 100 && ((S && held.punch) || (P && held.special) || (q && ((P && held.kick) || (K && held.punch))))) return this.doSuper(1, G);
+    if ((P && held.kick) || (K && held.punch)) { this.startMove('double', G); return true; }
+    if (cancel) return false;
+    const ownProj = G.projectiles.some(p => p.owner === this && p.kind !== 'pack');
+    let mvn = null;
+    if (S) mvn = d === 4 || d === 1 ? 'throw' : d === 6 ? 'rush' : d === 2 || d === 3 ? 'sweep' : 'slash';
+    else if (K && qb) mvn = 'throw';
+    else if (K && q) mvn = 'sweep';
+    else if (P && (q || d === 3)) mvn = 'slash';
+    else if (P && this.dashF()) mvn = 'rush';
+    if (!mvn) return false;
+    if ((mvn === 'slash' || mvn === 'throw') && (this.cool > 0 || ownProj)) return S; // eat the button, nothing happens
+    this.startMove(mvn, G); this.meter = Math.min(200, this.meter + 4); return true;
+  }
+  doSuper(lvl, G) { this.meter -= lvl * 100; this.startMove(lvl === 1 ? 'super1' : 'super2', G); G.superFlash = { t: 0, f: this, name: lvl === 1 ? 'LOBO E SEU AMIGO' : 'ALPHA PACK' }; G.hitstop = 26; SFX.play('howl'); return true; }
+  spawnProj(kind, G) {
+    const P = this.c.projs[kind]; if (P.cooldown) this.cool = P.cooldown;
+    G.projectiles.push({ owner: this, kind, x: this.x + this.facing * P.ox, y: FLOOR - P.oy, vx: P.speed * this.facing, dir: this.facing, t: 0, P, hits: 0, hcd: 0 });
+  }
   trySpecial(G) {
+    if (this.c.lobo) return false;
     if (this.c.special === 'ring') { if (this.cool > 0 || G.projectiles.some(p => p.owner === this)) return false; this.startMove('ring', G); return true; }
     this.startMove('whip', G); return true;
   }
   tickMove(opp, G) {
     const fr = this.curFrame(), m = this.move;
     const startOf = this.frameStart(fr);
-    if (this.mt === startOf) { if (fr.sfx) SFX.play(fr.sfx); if (fr.spawn) this.spawnRing(G); }
+    if (this.mt === startOf) { if (fr.sfx) SFX.play(fr.sfx); if (fr.spawn) { if (fr.spawn === 1) this.spawnRing(G); else this.spawnProj(fr.spawn, G); } if (fr.rh) this.hitDone = false; }
+    if (fr.vx != null && !m.air) this.vx = fr.vx * this.facing;
     if (fr.a && !this.hitDone) G.checkHit(this, opp, fr.hb ? { ...m.hit, ...fr.hb } : m.hit);
     this.mt++;
     if (m.air) { if (!this.air) { this.move = null; this.setState('land'); } return; }
-    if (this.mt >= m.total) { this.move = null; this.setState(m.crouch ? 'crouch' : 'idle'); }
+    if (this.mt >= m.total) { if (this.c.lobo) this.vx = 0; this.move = null; this.setState(m.crouch ? 'crouch' : 'idle'); }
   }
   frameStart(fr) { let t = 0; for (const f of this.move.frames) { if (f === fr) return t; t += f.d; } return 0; }
   spawnRing(G) {
@@ -261,9 +320,26 @@ function jogadorVisual(f) {
     default: { const b = Math.sin(t / 22); return { anim: 'stance', idx: 0, sy: 1 + 0.012 * b, oy: 0 }; }
   }
 }
+// Lobo Solitário: every frame is a crop of the user's character sheet (tools/build_lobo.py). The Yorkshire is part of most poses.
+function loboVisual(f) {
+  const s = f.state, t = f.animT;
+  if (s === 'attack' && f.move) { const fr = f.curFrame(); return { anim: fr.anim || f.move.anim, idx: 0, ...(fr.v || {}) }; }
+  switch (s) {
+    case 'walk': { const n = cyc(t, 2, 10); return { anim: 'walk', idx: n, oy: n ? -2 : 0 }; }
+    case 'crouch': case 'jumpsq': case 'land': return { anim: 'crouch', idx: 0 };
+    case 'air': return { anim: 'jump', idx: 0, oy: -6, rot: f.vy > 4 ? 0.06 : 0 };
+    case 'hit': return { anim: 'hit', idx: 0, ox: f.t < 6 ? -6 : -2, rot: f.heavyHit ? -0.08 : 0 };
+    case 'block': return f.crouching ? { anim: 'cblock', idx: 0 } : { anim: 'guard', idx: 0, ox: -3 };
+    case 'fall': return f.t < 10 ? { anim: 'hit', idx: 0, rot: -0.12 - f.t * 0.03 } : { anim: 'ko', idx: 0, oy: -6 };
+    case 'down': case 'ko': return { anim: 'ko', idx: 0 };
+    case 'getup': return f.t < 16 ? { anim: 'crouch', idx: 0 } : { anim: 'guard', idx: 0 };
+    case 'win': return { anim: ['win1', 'win2', 'taunt'][(f.winPose || 0) % 3], idx: 0 };
+    default: { const b = Math.sin(t / 22); return { anim: 'idle', idx: 0, sy: 1 + 0.01 * b }; }
+  }
+}
 function drawFighter(ctx, f, G) {
   if (!Sprites.ready) return;
-  const v = f.id === 'mukira' ? mukiraVisual(f) : jogadorVisual(f);
+  const v = f.id === 'mukira' ? mukiraVisual(f) : f.id === 'lobo' ? loboVisual(f) : jogadorVisual(f);
   if (v.lie) { const m = Sprites[f.id].meta[v.anim][0]; const k = Math.min(1, Math.abs(v.rot) / 1.5); v.oy = (v.oy || 0) - k * m.ax * 0.62; v.ox = (v.ox || 0) + k * m.h * 0.5; }
   // shadow
   ctx.save(); ctx.globalAlpha = 0.35; ctx.fillStyle = '#000'; const sw = 54 * (1 - (FLOOR - f.y) / 400);
@@ -312,6 +388,15 @@ class CPU {
     // anti-air
     if (opp.air && dist < 170 && r < L.anti) { this.press(o, 'punch'); return this.fin(o); }
     const reach = me.id === 'mukira' ? 175 : 100;
+    if (me.id === 'lobo') {
+      const own = G.projectiles.some(p => p.owner === me);
+      if (me.meter >= 200 && dist < 330 && Math.random() < L.special * 0.6) { o.special = true; o.kick = true; return this.fin(o); }
+      if (me.meter >= 100 && dist < 200 && Math.random() < L.special * 0.5) { o.special = true; o.punch = true; return this.fin(o); }
+      if (dist > 260 && me.cool === 0 && !own && Math.random() < L.special) { o.special = true; if (Math.random() < 0.4) o[back] = true; return this.fin(o); }
+      if (dist > 150 && dist < 300 && Math.random() < L.special * 0.35) { o.special = true; o[fwd] = true; return this.fin(o); }
+      if (dist < 200 && dist > 90 && Math.random() < L.special * 0.3) { o.special = true; o.down = true; return this.fin(o); }
+      if (dist < 140 && Math.random() < L.aggro * 0.2) { o.punch = true; o.kick = true; return this.fin(o); }
+    }
     if (dist > 250 && me.id === 'jogador' && me.cool === 0 && !G.projectiles.length && Math.random() < L.special) { this.press(o, 'special'); return this.fin(o); }
     if (dist < reach + 10 && dist > 120 && me.id === 'mukira' && Math.random() < L.special) { this.press(o, 'special'); return this.fin(o); }
     if (dist < 125) {

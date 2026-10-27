@@ -31,6 +31,8 @@ const SFX = (() => {
     bell() { tone(0.6, 880, 870, 'sine', 0.3); tone(0.6, 1320, 1310, 'sine', 0.15); },
     select() { tone(0.08, 660, 990, 'square', 0.15); },
     move() { tone(0.04, 440, 440, 'square', 0.08); },
+    bark() { tone(0.07, 900, 500, 'square', 0.2); setTimeout(() => tone(0.07, 950, 520, 'square', 0.2), 110); },
+    howl() { tone(1.0, 380, 720, 'sawtooth', 0.18); tone(1.0, 390, 700, 'triangle', 0.15); },
     land() { noise(0.08, 300, 100, 1, 0.2, 'lowpass'); },
   };
   return {
