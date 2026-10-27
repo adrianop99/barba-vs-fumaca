@@ -238,7 +238,7 @@ function updateProjectiles() {
   }
   G.projectiles = G.projectiles.filter(p => !p.dead);
 }
-// Lobo projectiles: wave (Alpha Claw Slash), dog (Dog Throw -> Yorkshire Attack, latches and bites up to 3x), pack (Alpha Pack super)
+// Lobo projectiles: wave (Claw Slash), dog (Dog Throw, bites up to 3x), roar (Alpha Roar), pack/pack2 (super Lv1/Lv2)
 function updateLoboProj(p, def) {
   const P = p.P; p.t++; if (p.hcd > 0) p.hcd--;
   if (P.grav) { p.vy += P.grav; p.y += p.vy; if (p.y > FLOOR - 12) p.dead = true; }
@@ -287,17 +287,18 @@ G.randomize = function (me, opp) { // Randomize: roll the dice -> one of 4 outco
 };
 function drawLoboProj(p) {
   if (p.owner.id === 'go') return drawGoProj(p);
-  const S = Sprites.lobo;
-  if (p.kind === 'pack') { // Alpha Pack: spectral wolves as additive light (no panel box) + the real Yorkshires on top
-    const m = S.meta.super2a[0], o = { id: 'lobo', x: p.x, y: p.y + m.h / 2, facing: p.dir, tinted: false };
-    ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = Math.min(1, p.t / 8) * (0.85 + 0.15 * Math.sin(p.t / 2)); drawFrame(ctx, o, 'super2a', 0, {}); ctx.restore();
-    drawFrame(ctx, o, 'super2n', 0, { oy: Math.sin(p.t / 3) * 3 }); return;
+  const S = Sprites.lobo, add = (anim, opt, x = p.x, y = p.y) => { const m = S.meta[anim][0]; ctx.save(); ctx.globalCompositeOperation = 'screen'; drawFrame(ctx, { id: 'lobo', x, y: y + m.h / 2, facing: p.dir, tinted: false }, anim, 0, opt); ctx.restore(); };
+  const fade = p.P.life ? clamp01((p.P.life - p.t) / 8) : 1, pul = 0.88 + 0.12 * Math.sin(p.t / 2);
+  if (p.kind === 'pack' || p.kind === 'pack2') { // spectral pack (glow) + the real Yorkshires running in front
+    const sc = p.P.big ? 1.12 : 1; add('packa', { alpha: Math.min(1, p.t / 6) * pul, sx: sc, sy: sc });
+    drawFrame(ctx, { id: 'lobo', x: p.x, y: FLOOR, facing: p.dir, tinted: false }, 'packn', 0, { oy: -Math.abs(Math.sin(p.t / 3)) * 5 }); return;
   }
-  const anim = p.kind === 'wave' ? 'wave' : p.stick ? 'dogatk' : 'dogfly';
-  const m = S.meta[anim][0]; const shake = p.stick ? Math.sin(p.t * 1.3) * 3 : 0;
-  ctx.save(); if (p.kind === 'wave') ctx.globalCompositeOperation = 'lighter';
-  drawFrame(ctx, { id: 'lobo', x: p.x + shake, y: p.y + m.h / 2, facing: p.dir, tinted: false }, anim, 0, {});
-  ctx.restore();
+  if (p.kind === 'wave') return add('wave', { alpha: pul, sx: 0.9 + 0.1 * Math.min(1, p.t / 6) });
+  if (p.kind === 'roar') return add('roarhead', { alpha: Math.min(1, p.t / 5) * pul, sx: 0.85 + 0.15 * Math.min(1, p.t / 10), sy: 0.85 + 0.15 * Math.min(1, p.t / 10) });
+  // Dog Throw: the flying Yorkshire with its blue trail (cut from the Dog Throw panel); latched = shaking bite, no trail
+  const m = S.meta.dogfly[0], shake = p.stick ? Math.sin(p.t * 1.3) * 3 : 0;
+  if (p.stick) drawFrame(ctx, { id: 'lobo', x: p.x + shake, y: p.y + 45, facing: p.dir, tinted: false }, 'pupIdle', 0, { rot: Math.sin(p.t) * 0.15 });
+  else drawFrame(ctx, { id: 'lobo', x: p.x, y: p.y + m.h / 2, facing: p.dir, tinted: false }, 'dogfly', 0, { alpha: fade });
 }
 G.smogOn = me => G.smog.some(s => s.victim === me && s.t < 75);
 G.dust = x => { for (let i = 0; i < 6; i++) G.particles.push({ x: x + (Math.random() - 0.5) * 50, y: FLOOR - 4, vx: (Math.random() - 0.5) * 2, vy: -Math.random() * 1.2, r: 5 + Math.random() * 5, life: 26, t: 0, a: 0.45, dust: 1 }); };
@@ -383,6 +384,12 @@ function portrait(f, x, y, flip) {
   const S = Sprites[f.id]; if (!S) return;
   if (f.id === 'go') { const m = S.meta.face[0]; ctx.save(); ctx.fillStyle = '#120c24'; ctx.fillRect(x, y, 60, 60); ctx.beginPath(); ctx.rect(x, y, 60, 60); ctx.clip(); ctx.translate(x + 30, y); ctx.scale(flip ? -1 : 1, 1);
     const sc = 60 / Math.min(m.w, m.h * 0.8); ctx.drawImage(f.tinted ? S.tint : S.img, m.x, m.y, m.w, m.h, -m.w * sc / 2, -4, m.w * sc, m.h * sc); ctx.restore(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(x, y, 60, 60); return; }
+  if (f.id === 'lobo') { const face = f.hp < f.c.hp * 0.3 ? 'fSedento' : (f.state === 'hit' || f.state === 'fall') ? 'fBravo' : f.state === 'win' ? 'fSorrindo' : 'fNormal';
+    const m = S.meta[face][0], d = S.meta[f.dogOut && f.dogOut() ? 'dAtacando' : f.state === 'attack' ? 'dLatindo' : 'dNormal'][0];
+    ctx.save(); ctx.fillStyle = '#120c24'; ctx.fillRect(x, y, 60, 60); ctx.beginPath(); ctx.rect(x, y, 60, 60); ctx.clip(); ctx.translate(x + 30, y); ctx.scale(flip ? -1 : 1, 1);
+    ctx.drawImage(f.tinted ? S.tint : S.img, m.x, m.y, m.w, m.h, -32, 0, 64, 64 * m.h / m.w); ctx.restore(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(x, y, 60, 60);
+    const bx = flip ? x - 6 : x + 38, by = y + 40; ctx.save(); ctx.beginPath(); ctx.arc(bx + 14, by + 14, 15, 0, Math.PI * 2); ctx.fillStyle = '#1a1030'; ctx.fill(); ctx.clip();
+    ctx.drawImage(S.img, d.x, d.y, d.w, d.h, bx - 2, by - 2, 32, 32 * d.h / d.w); ctx.restore(); ctx.strokeStyle = '#ffd23a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(bx + 14, by + 14, 15, 0, Math.PI * 2); ctx.stroke(); return; }
   const m = S.meta[f.id === 'jogador' ? 'stance' : 'idle'][0];
   ctx.save(); ctx.fillStyle = '#120c24'; ctx.fillRect(x, y, 60, 60); ctx.beginPath(); ctx.rect(x, y, 60, 60); ctx.clip();
   const sx = m.x + m.ax - 26 + (f.id === 'jogador' ? 2 : 0);
@@ -455,7 +462,10 @@ function drawSelect() {
     const tinted = G.selStep === 1 && G.pick[0] === id;
     if (Sprites.ready) { ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
       if (id === 'go') { ctx.save(); ctx.globalCompositeOperation = 'lighter'; drawFrame(ctx, { id, x: x + w / 2, y: y + h - 70, facing: 1, tinted }, 'dicecloud', 0, { oy: -150, alpha: 0.35 + 0.15 * Math.sin(G.frame / 12) }); ctx.restore(); }
-      drawFrame(ctx, { id, x: x + w / 2, y: y + h - 70, facing: i === 1 ? -1 : 1, tinted }, id === 'jogador' ? 'stance' : 'idle', id === 'mukira' ? cyc(G.frame, 4, 12) : id === 'go' ? [0, 1, 2, 1][Math.floor(G.frame / 14) % 4] : 0, {}); ctx.restore(); }
+      if (id === 'lobo') { drawFrame(ctx, { id, x: x + w / 2, y: y + h - 66, facing: 1, tinted }, 'card', 0, { sy: 1 + 0.01 * Math.sin(G.frame / 18) });
+        drawFrame(ctx, { id, x: x + w - 34, y: y + 92, facing: 1, tinted: false }, ['dNormal', 'dAtento', 'dAtacando', 'dLatindo'][Math.floor(G.frame / 40) % 4], 0, { sx: 0.62, sy: 0.62 });
+        ctx.strokeStyle = '#ffd23a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x + w - 34, y + 70, 28, 0, Math.PI * 2); ctx.stroke(); }
+      else drawFrame(ctx, { id, x: x + w / 2, y: y + h - 70, facing: i === 1 ? -1 : 1, tinted }, id === 'jogador' ? 'stance' : 'idle', id === 'mukira' ? cyc(G.frame, 4, 12) : id === 'go' ? [0, 1, 2, 1][Math.floor(G.frame / 14) % 4] : 0, {}); ctx.restore(); }
     const nm = CHARS[id].name; txt(nm, x + w / 2, y + h - 46, Math.min(28, Math.floor(w * 1.55 / nm.length)), '#fff', 'center', '900', 5);
     txt(CHARS[id].title, x + w / 2, y + h - 18, w < 250 ? 12 : 15, '#cbbfff', 'center', '700', 3);
     if (G.selStep === 1 && G.pick[0] === id) txt('P1', x + 22, y + 20, 18, '#3cf', 'center', '900', 4);
@@ -463,11 +473,11 @@ function drawSelect() {
   });
   if (G.selStep === 1 && CHAR_IDS[G.selCur[1]] === G.pick[0]) txt('Espelho: o adversário usa outras cores', VW / 2, 474, 15, '#cbbfff', 'center', '600', 3);
   const info = ['Especial: chicote de barba de longo alcance (Especial ou ↘ + Soco)', 'Especial: anel de fumaça que atravessa a tela e cega (Especial ou ↘ + Soco)',
-    'Especial: garra azul · Esp+← cachorro · Esp+→ investida · Esp+↓ rasteira',
+    'Especial: Claw Slash · Esp+← cachorro · Esp+→ Alpha Rush · Esp+↓ rasteira · Esp+↘ Alpha Roar',
     'Especial: dado de dados · Esp+← chuva de dados · Esp+→ Bit Dash · Esp+↓ jaula · Esp+↘ Hack Grab'][G.selCur[G.selStep]];
   txt(info, VW / 2, 494, 15, '#fff', 'center', '600', 3);
   if (CHAR_IDS[G.selCur[G.selStep]] === 'go') txt('Soco+Chute: Randomize (sorte ou azar) · Supers (barra DATA): Especial+Soco · Especial+Chute · botão SUPER', VW / 2, 516, 14, '#bfe8ff', 'center', '600', 3);
-  if (CHAR_IDS[G.selCur[G.selStep]] === 'lobo') txt('Soco+Chute: ataque duplo · Supers (barra ALPHA): Especial+Soco · Especial+Chute · botão SUPER', VW / 2, 516, 14, '#bfe8ff', 'center', '600', 3);
+  if (CHAR_IDS[G.selCur[G.selStep]] === 'lobo') txt('Soco+Chute: Wolf Spin · Super Alpha Pack (barra ALPHA, Lv2 com 2 barras): Especial+Soco/Chute · botão SUPER', VW / 2, 516, 14, '#bfe8ff', 'center', '600', 3);
   button('back', '‹', 20, VH - 64, 50, 48, false);
 }
 function drawResult() {
@@ -484,7 +494,7 @@ function drawPause() {
   txt('Controles: ← → andar · ↑ pular · ↓ agachar · segurar para trás = defender', VW / 2, 440, 15, '#fff', 'center', '600', 3);
   txt('Soco · Chute · Especial  (↘ + Soco também solta o especial)  ·  → + Soco = soco forte', VW / 2, 466, 15, '#fff', 'center', '600', 3);
   if (G.fighters.some(f => f.id === 'go')) txt('G.O.: Especial (+← dados, +→ dash, +↓ jaula, +↘ agarrão) · Soco+Chute Randomize · Esp+Soco / Esp+Chute supers', VW / 2, 514, 13, '#bfe8ff', 'center', '600', 3);
-  if (G.fighters.some(f => f.id === 'lobo')) txt('Lobo: Especial (+← cachorro, +→ investida, +↓ rasteira) · Soco+Chute duplo · Especial+Soco super 1 · Especial+Chute super 2', VW / 2, 492, 13, '#bfe8ff', 'center', '600', 3);
+  if (G.fighters.some(f => f.id === 'lobo')) txt('Lobo: Especial (+← cachorro, +→ investida, +↓ rasteira, +↘ uivo) · Soco+Chute giro · Especial+Soco/Chute super', VW / 2, 492, 13, '#bfe8ff', 'center', '600', 3);
 }
 
 // ---------- menu keyboard ----------

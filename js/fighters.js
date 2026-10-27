@@ -39,32 +39,34 @@ const CHARS = {
     proj: { speed: 6.5, dmg: 80, stun: 22, bstun: 14, push: 9, chip: 10, cooldown: 110 },
   },
   lobo: {
-    id: 'lobo', name: 'LOBO SOLITÁRIO', hud: 'LOBO', title: 'The Lone Alpha (+ Yorkshire)', hp: 1000, walkF: 3.3, walkB: 2.8, jumpVX: 4.0, jumpVY: -15.2,
-    standH: 205, crouchH: 140, special: 'lobo', lobo: 1, rich: 1, meterName: 'ALPHA', supers: ['LOBO E SEU AMIGO', 'ALPHA PACK'], superSfx: 'howl',
+    id: 'lobo', name: 'LOBO SOLITÁRIO', hud: 'LOBO', title: 'The Lone Alpha + Yorkshire', hp: 1000, walkF: 3.3, walkB: 2.8, jumpVX: 4.0, jumpVY: -15.2,
+    standH: 200, crouchH: 140, special: 'lobo', lobo: 1, rich: 1, meterName: 'ALPHA', supers: ['ALPHA PACK', 'ALPHA PACK MÁXIMO'], superSfx: 'howl',
     moves: {
-      lp: mv({ anim: 'jab', frames: [{ f: 0, d: 3, anim: 'guard' }, { f: 0, d: 4, a: 1 }, { f: 0, d: 7, anim: 'guard' }], hit: { x0: 25, x1: 92, y0: -175, y1: -135, dmg: 45, stun: 15, bstun: 10, push: 5 }, sfx: 'whoosh' }),
-      hp: mv({ anim: 'fierce', frames: [{ f: 0, d: 6, anim: 'strong' }, { f: 0, d: 6, a: 1 }, { f: 0, d: 12, anim: 'strong' }], hit: { x0: 30, x1: 112, y0: -170, y1: -120, dmg: 80, stun: 19, bstun: 12, push: 8, heavy: 1 }, sfx: 'whoosh' }),
-      lk: mv({ anim: 'claw', frames: [{ f: 0, d: 5, anim: 'strong' }, { f: 0, d: 6, a: 1 }, { f: 0, d: 11, anim: 'guard' }], hit: { x0: 40, x1: 145, y0: -168, y1: -100, dmg: 70, stun: 17, bstun: 11, push: 7 }, sfx: 'whip' }),
-      cp: mv({ anim: 'clp', crouch: 1, frames: [{ f: 0, d: 3, anim: 'crouch' }, { f: 0, d: 4, a: 1, anim: 'cmp' }, { f: 0, d: 7, anim: 'clp' }], hit: { x0: 25, x1: 100, y0: -118, y1: -80, dmg: 40, stun: 13, bstun: 9, push: 5 }, sfx: 'whoosh' }),
-      ck: mv({ anim: 'lowk', crouch: 1, frames: [{ f: 0, d: 5, anim: 'chp' }, { f: 0, d: 5, a: 1 }, { f: 0, d: 12, anim: 'crouch' }], hit: { x0: 35, x1: 150, y0: -40, y1: 0, dmg: 50, stun: 15, bstun: 11, push: 6, lvl: 'low' }, sfx: 'whoosh' }),
-      jp: mv({ anim: 'jab', air: 1, frames: [{ f: 0, d: 3, anim: 'jump' }, { f: 0, d: 30, a: 1, v: { oy: -14 } }], hit: { x0: 20, x1: 90, y0: -170, y1: -110, dmg: 55, stun: 16, bstun: 10, push: 4, lvl: 'high' }, sfx: 'whoosh' }),
-      jk: mv({ anim: 'lowk', air: 1, frames: [{ f: 0, d: 4, anim: 'jump' }, { f: 0, d: 30, a: 1, v: { oy: -40 } }], hit: { x0: 35, x1: 140, y0: -120, y1: -50, dmg: 65, stun: 17, bstun: 11, push: 5, lvl: 'high' }, sfx: 'whoosh' }),
-      slash: mv({ anim: 'slash', special: 1, frames: [{ f: 0, d: 9, anim: 'fierce' }, { f: 0, d: 14, spawn: 'wave', sfx: 'whip' }, { f: 0, d: 10, anim: 'guard' }], hit: null }),
-      throw: mv({ anim: 'throw', special: 1, frames: [{ f: 0, d: 8, anim: 'throwhold' }, { f: 0, d: 20, spawn: 'dog', sfx: 'bark' }, { f: 0, d: 6, anim: 'guard' }], hit: null }),
-      rush: mv({ anim: 'rush', special: 1, frames: [{ f: 0, d: 8, anim: 'crouch' }, { f: 0, d: 16, a: 1, vx: 9, sfx: 'whoosh' }, { f: 0, d: 16, anim: 'guard', vx: 0 }],
-        hit: { x0: 10, x1: 150, y0: -160, y1: -40, dmg: 90, stun: 22, bstun: 14, push: 10, heavy: 1, chip: 10, knock: 1 } }),
-      sweep: mv({ anim: 'sweep', special: 1, crouch: 1, frames: [{ f: 0, d: 9, anim: 'crouch' }, { f: 0, d: 12, a: 1, sfx: 'bark' }, { f: 0, d: 16, anim: 'crouch' }],
-        hit: { x0: 60, x1: 270, y0: -70, y1: 0, dmg: 70, stun: 20, bstun: 12, push: 8, lvl: 'low', chip: 8, knock: 1 } }),
-      double: mv({ anim: 'double', special: 1, frames: [{ f: 0, d: 10, anim: 'strong' }, { f: 0, d: 12, a: 1, sfx: 'bark' }, { f: 0, d: 20, anim: 'guard' }],
-        hit: { x0: 30, x1: 230, y0: -150, y1: -30, dmg: 100, stun: 22, bstun: 14, push: 10, heavy: 1, chip: 12, knock: 1 } }),
-      super1: mv({ anim: 'fierce', special: 1, frames: [{ f: 0, d: 6, anim: 'guard' }, { f: 0, d: 10, a: 1, rh: 1, vx: 7, anim: 'fierce' }, { f: 0, d: 10, a: 1, rh: 1, vx: 7, anim: 'claw' }, { f: 0, d: 10, a: 1, rh: 1, vx: 7, anim: 'strong', hb: { knock: 1, dmg: 90, heavy: 1, push: 10 } }, { f: 0, d: 18, anim: 'claw', vx: 0 }],
-        hit: { x0: 0, x1: 220, y0: -190, y1: 0, dmg: 70, stun: 26, bstun: 12, push: 3, chip: 15, nomtr: 1 } }),
-      super2: mv({ anim: 'claw', special: 1, frames: [{ f: 0, d: 14, anim: 'taunt', sfx: 'howl' }, { f: 0, d: 18, spawn: 'pack' }, { f: 0, d: 16, anim: 'guard' }], hit: null }),
+      lp: mv({ anim: 'jab', frames: [{ f: 0, d: 3, anim: 'guard' }, { f: 0, d: 4, a: 1 }, { f: 0, d: 7 }], hit: { x0: 25, x1: 95, y0: -175, y1: -135, dmg: 45, stun: 15, bstun: 10, push: 5 }, sfx: 'whoosh' }),
+      hp: mv({ anim: 'fierce', frames: [{ f: 0, d: 6, anim: 'strong' }, { f: 0, d: 6, a: 1 }, { f: 0, d: 12, anim: 'strong' }], hit: { x0: 30, x1: 115, y0: -172, y1: -120, dmg: 80, stun: 19, bstun: 12, push: 8, heavy: 1 }, sfx: 'whoosh' }),
+      lk: mv({ anim: 'hk', frames: [{ f: 0, d: 5, anim: 'lowk' }, { f: 0, d: 6, a: 1 }, { f: 0, d: 11, anim: 'guard' }], hit: { x0: 35, x1: 140, y0: -170, y1: -100, dmg: 70, stun: 17, bstun: 11, push: 7 }, sfx: 'whip' }),
+      cp: mv({ anim: 'crouch', crouch: 1, fx: 'jab', frames: [{ f: 0, d: 3, anim: 'cblock' }, { f: 0, d: 4, a: 1 }, { f: 0, d: 7, anim: 'cblock' }], hit: { x0: 25, x1: 100, y0: -118, y1: -80, dmg: 40, stun: 13, bstun: 9, push: 5 }, sfx: 'whoosh' }),
+      ck: mv({ anim: 'sweep', crouch: 1, frames: [{ f: 0, d: 5, anim: 'crouch' }, { f: 0, d: 5, a: 1 }, { f: 0, d: 12, anim: 'crouch' }], hit: { x0: 35, x1: 150, y0: -40, y1: 0, dmg: 50, stun: 15, bstun: 11, push: 6, lvl: 'low' }, sfx: 'whoosh' }),
+      jp: mv({ anim: 'jpa', air: 1, frames: [{ f: 0, d: 3, anim: 'jump' }, { f: 0, d: 30, a: 1, v: { oy: -14 } }], hit: { x0: 20, x1: 90, y0: -170, y1: -110, dmg: 55, stun: 16, bstun: 10, push: 4, lvl: 'high' }, sfx: 'whoosh' }),
+      jk: mv({ anim: 'jka', air: 1, frames: [{ f: 0, d: 4, anim: 'jump' }, { f: 0, d: 30, a: 1, v: { oy: -30 } }], hit: { x0: 35, x1: 140, y0: -150, y1: -60, dmg: 65, stun: 17, bstun: 11, push: 5, lvl: 'high' }, sfx: 'whoosh' }),
+      slash: mv({ anim: 'slash', special: 1, frames: [{ f: 0, d: 9, anim: 'guard' }, { f: 0, d: 14, spawn: 'wave', sfx: 'whip' }, { f: 0, d: 10 }], hit: null }),
+      throw: mv({ anim: 'throw', special: 1, frames: [{ f: 0, d: 8, anim: 'crouch' }, { f: 0, d: 18, spawn: 'dog', sfx: 'bark' }, { f: 0, d: 6 }], hit: null }),
+      spin: mv({ anim: 'spin', special: 1, fx2: 'spinfx', frames: [{ f: 0, d: 6, anim: 'cblock' }, { f: 0, d: 8, a: 1, vx: 3, sfx: 'whip' }, { f: 0, d: 8, a: 1, rh: 1, vx: 3 }, { f: 0, d: 8, a: 1, rh: 1, vx: 2, hb: { knock: 1, dmg: 45, push: 10 } }, { f: 0, d: 14, anim: 'guard', vx: 0 }],
+        hit: { x0: -40, x1: 150, y0: -170, y1: -10, dmg: 35, stun: 18, bstun: 10, push: 3, chip: 6 } }),
+      rush: mv({ anim: 'rush', special: 1, fx2: 'rushhead', frames: [{ f: 0, d: 8, anim: 'crouch' }, { f: 0, d: 16, a: 1, vx: 9, sfx: 'howl' }, { f: 0, d: 14, anim: 'guard', vx: 0 }],
+        hit: { x0: 10, x1: 190, y0: -170, y1: -30, dmg: 90, stun: 22, bstun: 14, push: 10, heavy: 1, chip: 10, knock: 1 } }),
+      sweep: mv({ anim: 'sweep', special: 1, crouch: 1, fx2: 'sweepfx', frames: [{ f: 0, d: 9, anim: 'crouch' }, { f: 0, d: 12, a: 1, sfx: 'bark' }, { f: 0, d: 16, anim: 'crouch' }],
+        hit: { x0: 50, x1: 250, y0: -70, y1: 0, dmg: 70, stun: 20, bstun: 12, push: 8, lvl: 'low', chip: 8, knock: 1 } }),
+      roar: mv({ anim: 'roar', special: 1, frames: [{ f: 0, d: 10, anim: 'guard' }, { f: 0, d: 20, spawn: 'roar', sfx: 'howl' }, { f: 0, d: 12 }], hit: null }),
+      super1: mv({ anim: 'rush', special: 1, frames: [{ f: 0, d: 12, anim: 'superpose' }, { f: 0, d: 22, spawn: 'pack', vx: 5 }, { f: 0, d: 14, anim: 'guard', vx: 0 }], hit: null }),
+      super2: mv({ anim: 'rush', special: 1, frames: [{ f: 0, d: 12, anim: 'superpose' }, { f: 0, d: 26, spawn: 'pack2', vx: 6 }, { f: 0, d: 14, anim: 'taunt', vx: 0 }], hit: null }),
     },
     projs: {
-      wave: { speed: 7, dmg: 75, stun: 22, bstun: 14, push: 9, chip: 10, cooldown: 100, ox: 110, oy: 110, bw: 26, bh: 60 },
-      dog: { speed: 8, dmg: 30, stun: 24, bstun: 14, push: 3, chip: 6, cooldown: 140, ox: 70, oy: 60, bw: 40, bh: 45, maxHits: 3, gap: 12, knockLast: 1, life: 140 },
-      pack: { speed: 6, dmg: 85, stun: 30, bstun: 16, push: 4, chip: 15, ox: 150, oy: 100, bw: 150, bh: 100, maxHits: 3, gap: 9, knockLast: 1, pierce: 1, nomtr: 1 },
+      wave: { speed: 7.5, dmg: 75, stun: 22, bstun: 14, push: 9, chip: 10, cooldown: 100, ox: 95, oy: 95, bw: 30, bh: 60 },
+      dog: { speed: 9, dmg: 30, stun: 24, bstun: 14, push: 3, chip: 6, cooldown: 140, ox: 110, oy: 70, bw: 40, bh: 40, maxHits: 3, gap: 12, knockLast: 1, life: 80 },
+      roar: { speed: 6, dmg: 55, stun: 24, bstun: 14, push: 6, chip: 10, cooldown: 130, ox: 120, oy: 110, bw: 60, bh: 75, maxHits: 2, gap: 10, knockLast: 1 },
+      pack: { speed: 8, dmg: 85, stun: 30, bstun: 16, push: 4, chip: 15, ox: 120, oy: 100, bw: 150, bh: 100, maxHits: 3, gap: 9, knockLast: 1, pierce: 1, nomtr: 1 },
+      pack2: { speed: 9, dmg: 80, stun: 30, bstun: 16, push: 4, chip: 18, ox: 120, oy: 110, bw: 170, bh: 115, maxHits: 5, gap: 7, knockLast: 1, pierce: 1, nomtr: 1, big: 1 },
     },
   },
   go: {
@@ -136,7 +138,7 @@ class Fighter {
     this.x = side === 0 ? 300 : 660; this.y = FLOOR; this.vx = 0; this.vy = 0; this.facing = side === 0 ? 1 : -1;
     this.hp = this.c.hp; this.state = 'idle'; this.t = 0; this.move = null; this.mt = 0; this.hitDone = false; this.stun = 0;
     this.crouching = false; this.cool = 0; this.flash = 0; this.dirHist = []; this.prev = {}; this.inv = 0; this.pushV = 0; this.combo = 0; this.animT = 0; this.pt = {};
-    this.pup = this.c.lobo ? { x: this.x + this.facing * 58, face: this.facing, t: 0, away: false, ret: false, moving: false, hide: false } : null; this.trail = []; this.lastV = null; this.trans = null;
+    this.pup = this.c.lobo ? { x: this.x + this.facing * 55, face: this.facing, t: 0, away: false, ret: false, moving: false, hide: true } : null; this.trail = []; this.lastV = null; this.trans = null;
   }
   get air() { return this.y < FLOOR - 0.01 || this.state === 'air' || this.state === 'fall'; }
   dirNum(inp) { // numpad notation relative to facing
@@ -207,46 +209,47 @@ class Fighter {
   motion(seq, n = 16) { const h = this.dirHist.slice(-n); let k = 0; for (const v of h) if (v === seq[k]) { k++; if (k === seq.length) return true; } return false; }
   dashF() { const h = this.dirHist.slice(-16); let i = h.length - 1; if (h[i] !== 6) return false; while (i >= 0 && h[i] === 6) i--; let j = i; while (j >= 0 && h[j] !== 6 && h[j] === 5) j--; return j >= 0 && j < i && h[j] === 6 && i - j <= 10; }
   // Lobo Solitário command list (keyboard + touch friendly). cancel=true: only P+K combos/supers in the first frames of a normal.
+  // Touch: Especial (=Claw Slash), +← Dog Throw, +→ Alpha Rush, +↓ Tail Sweep, +↘ Alpha Roar, Soco+Chute Wolf Spin,
+  // Especial+Soco / Especial+Chute / SUPER = super (Lv2 with 2 bars). Keyboard motions follow the sheet:
+  // ↓↘→P claw, ↓↙←K dog, →→P rush, ↓↘→K sweep, ↓↙←P roar, ↓↘→↓↘→ P+K super.
   loboInput(press, d, G, cancel) {
     const P = press.punch, K = press.kick, S = press.special;
-    // chord = both buttons went down within 5 frames (~80 ms) of each other, in any order, on any device
     const rec = k => press[k] || this.tick - (this.pt[k] || -99) <= 5;
     const chord = (a, b) => (press[a] || press[b]) && rec(a) && rec(b);
     const used = (...ks) => { for (const k of ks) this.pt[k] = -99; };
-    const q = this.motion([2, 3, 6]), qb = this.motion([2, 1, 4]);
-    if (press.super && this.meter >= 100) return this.doSuper(this.meter >= 200 ? 2 : 1, G);
-    if (this.meter >= 200 && (chord('special', 'kick') || (qb && chord('punch', 'kick')))) { used('special', 'kick', 'punch'); return this.doSuper(2, G); }
-    if (this.meter >= 100 && (chord('special', 'punch') || (q && chord('punch', 'kick')))) { used('special', 'punch', 'kick'); return this.doSuper(1, G); }
-    if (chord('punch', 'kick')) { used('punch', 'kick'); if (this.moveName === 'double' && this.state === 'attack') return true; this.startMove('double', G); return true; }
+    const q = this.motion([2, 3, 6]), qb = this.motion([2, 1, 4]), qq = this.motion([2, 3, 6, 2, 3, 6], 24);
+    const lv = () => this.meter >= 200 ? 2 : 1;
+    if (press.super && this.meter >= 100) return this.doSuper(lv(), G);
+    if (this.meter >= 100 && (chord('special', 'punch') || chord('special', 'kick') || (qq && chord('punch', 'kick')))) { used('special', 'punch', 'kick'); return this.doSuper(lv(), G); }
+    if (chord('punch', 'kick')) { used('punch', 'kick'); if (this.moveName === 'spin' && this.state === 'attack') return true; this.startMove('spin', G); return true; }
     if (cancel) return false;
-    const ownProj = G.projectiles.some(p => p.owner === this && p.kind !== 'pack');
+    const busy = k => G.projectiles.some(p => p.owner === this && p.kind === k);
     let mvn = null;
-    if (S) mvn = d === 4 || d === 1 ? 'throw' : d === 6 ? 'rush' : d === 2 || d === 3 ? 'sweep' : 'slash';
+    if (S) mvn = d === 4 || d === 1 ? 'throw' : d === 6 ? 'rush' : d === 2 ? 'sweep' : d === 3 ? 'roar' : 'slash';
     else if (K && qb) mvn = 'throw';
     else if (K && q) mvn = 'sweep';
+    else if (P && qb) mvn = 'roar';
     else if (P && (q || d === 3)) mvn = 'slash';
     else if (P && this.dashF()) mvn = 'rush';
     if (!mvn) return false;
-    if ((mvn === 'slash' || mvn === 'throw') && (this.cool > 0 || ownProj)) return S; // eat the button, nothing happens
+    if ((mvn === 'slash' || mvn === 'roar' || mvn === 'throw') && (this.cool > 0 || busy('wave') || busy('roar') || busy('dog') || (this.pup && this.pup.ret))) return S;
     this.startMove(mvn, G); this.meter = Math.min(200, this.meter + 4); return true;
   }
   // The Yorkshire is its own sprite: follows the wolf, leaves during Dog Throw and runs back afterwards.
+  // The Yorkshire is baked into most of the user's poses (it stands next to the wolf). It becomes its own sprite only
+  // when the wolf leaves the floor (jumps / falls: the dog waits on the ground) and during Dog Throw (flies, bites, runs back).
   updPup(G) {
     const p = this.pup; p.t++;
-    const away = G.projectiles.some(q => q.owner === this && q.kind === 'dog');
-    if (away) { p.away = true; p.hide = true; return; }
+    if (G.projectiles.some(q => q.owner === this && q.kind === 'dog')) { p.away = true; p.hide = true; return; }
     if (p.away) { p.away = false; p.ret = true; p.x = this.lastDogX != null ? this.lastDogX : p.x; }
-    const mvn = this.state === 'attack' ? this.moveName : '';
-    const winBaked = this.state === 'win' && (this.winPose || 0) % 3 !== 0;
-    p.hide = ['throw', 'rush', 'sweep', 'double', 'slash', 'super2'].includes(mvn) || winBaked;
-    if (p.hide) { p.x = this.x + this.facing * 58; p.ret = false; p.moving = false; return; }
-    const lying = ['fall', 'down', 'ko'].includes(this.state);
-    const tx = this.x + this.facing * (mvn === 'super1' ? 120 : 58);
-    const dx = tx - p.x, ad = Math.abs(dx);
-    if (lying && !p.ret) { p.moving = false; p.face = Math.sign(this.x - p.x) || p.face; return; }
-    if (ad > 2) { const sp = p.ret ? 9 : mvn === 'super1' ? 10 : Math.max(1.5, Math.min(7, ad * 0.18)); p.x += Math.sign(dx) * Math.min(ad, sp); p.moving = ad > 4; p.face = p.moving ? Math.sign(dx) : this.facing; }
-    else { p.moving = false; p.ret = false; p.face = this.facing; }
+    const tx = this.x + this.facing * 55, dx = tx - p.x, ad = Math.abs(dx);
+    if (p.ret) { p.hide = false; p.moving = true; p.face = Math.sign(dx) || p.face; p.x += Math.sign(dx) * Math.min(ad, 10); if (ad < 12) { p.ret = false; p.moving = false; } return; }
+    p.moving = false; p.face = this.facing;
+    const off = this.air || ['fall'].includes(this.state);
+    if (off) { p.hide = false; return; } // stays where it was
+    p.hide = true; p.x = tx;
   }
+  dogOut() { return this.pup && (this.pup.away || this.pup.ret); }
   doSuper(lvl, G) { this.meter -= lvl * 100; this.startMove(lvl === 1 ? 'super1' : 'super2', G); G.superFlash = { t: 0, f: this, name: this.c.supers[lvl - 1] }; G.hitstop = 26; SFX.play(this.c.superSfx); return true; }
   cmdInput(press, d, G, cancel) { return this.id === 'go' ? this.goInput(press, d, G, cancel) : this.loboInput(press, d, G, cancel); }
   // G.O. command list. Touch: Especial (+← +→ +↓ +↘), Soco+Chute, Especial+Soco / Especial+Chute (supers), SUPER button.
@@ -411,7 +414,7 @@ function jogadorVisual(f) {
 // Lobo Solitário: every key pose is a crop of the user's character sheet (tools/build_lobo.py). In-between motion is
 // tweened here (ease in/out offsets, squash & stretch, rotation arcs, cross-fade ghosts, afterimages) - no new art.
 const easeO = x => 1 - (1 - x) * (1 - x), clamp01 = x => Math.max(0, Math.min(1, x));
-function loboVisual(f) {
+function baseVisual(f) {
   const s = f.state, t = f.animT, st = f.t;
   if (s === 'attack' && f.move) {
     const m = f.move, fr = f.curFrame(), i = m.frames.indexOf(fr), p = clamp01((f.mt - f.frameStart(fr)) / fr.d);
@@ -443,11 +446,26 @@ function loboVisual(f) {
     default: { const b = Math.sin(t / 18); return { anim: 'idle', idx: 0, sy: 1 + 0.016 * b, sx: 1 - 0.006 * b, oy: 0 }; }
   }
 }
+// Lobo v3: same tween rig, with the new sheet's own keys (2 idles, 2 walks, jump start / back / jump / land) and
+// dog-less variants while the Yorkshire is away (Dog Throw) or the wolf is airborne.
+const LOBO_NODOG = { idle: 'idleN', walk: 'walkN', guard: 'guardN', crouch: 'crouchN', cblock: 'crouchN', jumpsq: 'crouchN', land: 'crouchN', hit: 'hitw',
+  jab: 'jpa', strong: 'jpa', fierce: 'jpa', hk: 'jka', lowk: 'jka', spin: 'throw', sweep: 'throw' };
+function loboVisual(f) {
+  const v = baseVisual(f), s = f.state, st = f.t, t = f.animT;
+  if (s === 'idle' || (s !== 'attack' && v.anim === 'idle')) { v.idx = Math.floor(t / 34) % 2; }
+  else if (s === 'walk') { const ph = t / 10; v.idx = Math.floor(ph) % 2; }
+  else if (s === 'jumpsq') { v.anim = 'jumpsq'; v.sy = 0.96; v.sx = 1.03; }
+  else if (s === 'land') { const k = clamp01(st / 6); v.anim = 'land'; v.sy = 0.94 + 0.06 * easeO(k); v.sx = 1.04 - 0.04 * k; }
+  else if (s === 'air') v.anim = f.vx * f.facing < -0.5 ? 'jumpb' : 'jump';
+  else if (s === 'fall' && v.anim === 'hit') v.anim = 'hitw';
+  if (f.dogOut() && LOBO_NODOG[v.anim]) v.anim = LOBO_NODOG[v.anim];
+  return v;
+}
 // G.O.: same tween rig as Lobo, plus the sheet's 3 idle and 3 walk frames and its own jump/land/guard keys.
 function goVisual(f) {
   const s = f.state, t = f.animT, st = f.t;
   if (s === 'attack' && f.move) {
-    const v = loboVisual(f), mvn = f.moveName;
+    const v = baseVisual(f), mvn = f.moveName;
     if (mvn === 'super1' || mvn === 'super2') { const fr = f.curFrame(); if (fr.spawn) { v.ox = 0; v.rot = 0; v.sx = 1; v.sy = 1 + 0.01 * Math.sin(t / 3); } }
     return v;
   }
@@ -463,15 +481,14 @@ function goVisual(f) {
     case 'getup': { if (st < 12) { const k = st / 12; return { anim: 'crouch', idx: 0, sy: 0.6 + 0.4 * easeO(k), rot: -0.2 * (1 - k), ox: -6 }; }
       if (st < 20) return { anim: 'hunch', idx: 0, ox: -3 }; const k = clamp01((st - 20) / 8); return { anim: 'guard', idx: 0, sy: 0.95 + 0.05 * easeO(k) }; }
     case 'crouch': return { anim: 'crouch', idx: 0, sy: 1 + 0.01 * Math.sin(t / 16) };
-    default: return loboVisual(f);
+    default: return baseVisual(f);
   }
 }
 function drawPup(ctx, f, G) {
   const p = f.pup; if (!p || p.hide) return;
-  const anim = p.moving ? 'pupWalk' : (f.crouching || f.state === 'crouch') ? 'pupCrouch' : 'pupIdle';
-  const idx = p.moving ? cyc(p.t, 2, 5) : 0, oy = p.moving ? -Math.abs(Math.sin(p.t / 5 * Math.PI)) * 5 : 0;
+  const idx = p.moving ? [0, 2][cyc(p.t, 2, 5)] : 2, oy = p.moving ? -Math.abs(Math.sin(p.t / 5 * Math.PI)) * 6 : 0;
   ctx.save(); ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(p.x, FLOOR + 2, 26, 5, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-  drawFrame(ctx, { id: 'lobo', x: p.x, y: FLOOR, facing: p.face, tinted: false }, anim, idx, { oy, sy: p.moving ? 1 : 1 + 0.02 * Math.sin(p.t / 14) });
+  drawFrame(ctx, { id: 'lobo', x: p.x, y: FLOOR, facing: p.face, tinted: false }, 'pupIdle', idx, { oy, sy: p.moving ? 1 : 1 + 0.02 * Math.sin(p.t / 14) });
 }
 function drawFighter(ctx, f, G) {
   if (!Sprites.ready) return;
@@ -482,13 +499,12 @@ function drawFighter(ctx, f, G) {
   ctx.beginPath(); ctx.ellipse(f.x, FLOOR + 2, Math.max(16, sw), 7, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
   if (f.c.rich) {
     // cross-fade ghost of the previous key pose for a few frames = cheap in-between
-    if (f.lastV && (f.lastV.anim !== v.anim || (f.id === 'go' && f.lastV.idx !== v.idx))) f.trans = { v: f.lastV, t: 0 };
+    if (f.lastV && (f.lastV.anim !== v.anim || ((f.id === 'go' || f.id === 'lobo') && f.lastV.idx !== v.idx))) f.trans = { v: f.lastV, t: 0 };
     f.lastV = v;
     const mvn = f.state === 'attack' ? f.moveName : '';
-    const fast = (mvn === 'rush' || mvn === 'dash' || (mvn === 'super1' && f.id === 'lobo')) && f.curFrame() && f.curFrame().a;
+    const fast = (mvn === 'rush' || mvn === 'dash' || (/^super/.test(mvn) && f.id === 'lobo')) && f.curFrame() && f.curFrame().a;
     if (fast || (f.state === 'fall')) { if (G.frame % 2 === 0) f.trail.push({ x: f.x, y: f.y, v }); if (f.trail.length > 5) f.trail.shift(); } else if (f.trail.length) f.trail.shift();
-    if (f.id === 'lobo' && mvn === 'super1' && f.mt >= 4) { const m = Sprites.lobo.meta.super1a[0]; ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = Math.min(1, (f.mt - 4) / 6) * (0.8 + 0.2 * Math.sin(G.frame / 2));
-      drawFrame(ctx, { ...f, tinted: false }, 'super1a', 0, { ox: 30, oy: 0 }); ctx.restore(); }
+    if (f.id === 'lobo') drawLoboAura(ctx, f, G, v, mvn);
     if (f.id === 'go') drawGoAura(ctx, f, G, v, mvn);
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     f.trail.forEach((tr, i) => drawFrame(ctx, { ...f, x: tr.x, y: tr.y }, tr.v.anim, tr.v.idx, { ...tr.v, alpha: 0.10 + i * 0.05 }));
@@ -501,6 +517,17 @@ function drawFighter(ctx, f, G) {
   if (f.flash > 0) drawFrame(ctx, f, v.anim, v.idx, { ...v, white: true, alpha: Math.min(0.5, f.flash / 8) });
   // move effects (honest approximations for frames the art does not have)
   if (f.state === 'attack' && f.move && f.move.fx) { const fr = f.curFrame(); if (fr.a) drawSwoosh(ctx, f, f.move.fx, f.move.hit); }
+}
+// Lobo light layers: the sheet's own blue effects (cut as glow-only sprites), drawn additive behind the body
+function drawLoboAura(ctx, f, G, v, mvn) {
+  const m = f.move, fr = f.curFrame && f.curFrame(); if (!m || !m.fx2 || !fr || !fr.a) return;
+  const k = clamp01((f.mt - f.frameStart(fr)) / 4);
+  ctx.save(); ctx.globalCompositeOperation = 'screen';
+  const o = { id: 'lobo', x: f.x, y: f.y, facing: f.facing, tinted: false };
+  if (m.fx2 === 'rushhead') drawFrame(ctx, o, 'rushhead', 0, { ox: 60, oy: -6, alpha: 0.9 * k, sx: 0.9 + 0.1 * k, sy: 0.9 + 0.1 * k });
+  else if (m.fx2 === 'sweepfx') drawFrame(ctx, o, 'sweepfx', 0, { ox: 120, oy: 0, alpha: 0.9 * k });
+  else drawFrame(ctx, o, m.fx2, 0, { ...v, alpha: 0.85 * k, rot: (v.rot || 0) + Math.sin(G.frame / 3) * 0.03 });
+  ctx.restore();
 }
 // G.O. light layers (additive, cut from the sheet's own effect art)
 function drawGoAura(ctx, f, G, v, mvn) {
