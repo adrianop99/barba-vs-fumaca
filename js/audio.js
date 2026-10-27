@@ -33,6 +33,7 @@ const SFX = (() => {
     move() { tone(0.04, 440, 440, 'square', 0.08); },
     bark() { tone(0.07, 900, 500, 'square', 0.2); setTimeout(() => tone(0.07, 950, 520, 'square', 0.2), 110); },
     howl() { tone(1.0, 380, 720, 'sawtooth', 0.18); tone(1.0, 390, 700, 'triangle', 0.15); },
+    data() { [0, 0.05, 0.1].forEach((d, i) => tone(0.06, 900 + i * 300, 1200 + i * 400, 'square', 0.12, d)); noise(0.15, 3000, 6000, 2, 0.15); },
     land() { noise(0.08, 300, 100, 1, 0.2, 'lowpass'); },
   };
   return {
