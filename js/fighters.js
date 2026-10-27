@@ -29,7 +29,7 @@ const CHARS = {
     moves: {
       lp: mv({ anim: 'stance', frames: [{ f: 0, d: 3, pose: 'windup' }, { f: 0, d: 4, a: 1, pose: 'ring' }, { f: 0, d: 7 }], hit: { x0: 25, x1: 80, y0: -190, y1: -145, dmg: 50, stun: 15, bstun: 10, push: 5 }, sfx: 'whoosh' }),
       hp: mv({ anim: 'stance', frames: [{ f: 0, d: 6, pose: 'windup' }, { f: 0, d: 5, a: 1, pose: 'ringLunge' }, { f: 0, d: 13, pose: 'ring' }], hit: { x0: 40, x1: 100, y0: -190, y1: -140, dmg: 75, stun: 19, bstun: 12, push: 8, heavy: 1 }, sfx: 'whoosh' }),
-      lk: mv({ anim: 'stance', fx: 'kick', frames: [{ f: 0, d: 4, pose: 'kickPrep' }, { f: 0, d: 5, a: 1, pose: 'kick' }, { f: 0, d: 10, pose: 'kickPrep' }], hit: { x0: 40, x1: 138, y0: -125, y1: -70, dmg: 65, stun: 16, bstun: 11, push: 7 }, sfx: 'whoosh' }),
+      lk: mv({ anim: 'stance', fx: 'kick', frames: [{ f: 0, d: 4, pose: 'kickPrep' }, { f: 0, d: 5, a: 1, pose: 'kick' }, { f: 0, d: 10, pose: 'kickRec' }], hit: { x0: 40, x1: 138, y0: -125, y1: -70, dmg: 65, stun: 16, bstun: 11, push: 7 }, sfx: 'whoosh' }),
       cp: mv({ anim: 'stance', crouch: 1, frames: [{ f: 0, d: 3, pose: 'crouch' }, { f: 0, d: 4, a: 1, pose: 'crouchRing' }, { f: 0, d: 7, pose: 'crouch' }], hit: { x0: 25, x1: 85, y0: -128, y1: -92, dmg: 40, stun: 13, bstun: 9, push: 5 }, sfx: 'whoosh' }),
       ck: mv({ anim: 'stance', crouch: 1, fx: 'sweep', frames: [{ f: 0, d: 5, pose: 'crouch' }, { f: 0, d: 5, a: 1, pose: 'crouchKick' }, { f: 0, d: 12, pose: 'crouch' }], hit: { x0: 35, x1: 140, y0: -36, y1: 0, dmg: 50, stun: 15, bstun: 11, push: 6, lvl: 'low' }, sfx: 'whoosh' }),
       jp: mv({ anim: 'stance', air: 1, frames: [{ f: 0, d: 3, pose: 'jump' }, { f: 0, d: 30, a: 1, pose: 'jumpRing' }], hit: { x0: 20, x1: 85, y0: -175, y1: -115, dmg: 55, stun: 16, bstun: 10, push: 4, lvl: 'high' }, sfx: 'whoosh' }),
@@ -100,7 +100,7 @@ class Fighter {
       else if (st === 'attack') this.tickMove(opp, G);
       else if (st === 'hit' || st === 'block') { this.stun--; if (this.stun <= 0) this.setState('idle'); }
       else if (st === 'down') { if (this.t > 38) this.setState('getup'); }
-      else if (st === 'getup') { if (this.t > 16) this.setState('idle'); }
+      else if (st === 'getup') { if (this.t > 28) this.setState('idle'); }
       else if (st === 'land' || st === 'jumpsq') { if (this.t > 4) this.setState(st === 'jumpsq' ? 'idle' : 'idle'); }
       this.physics(G); return;
     }
@@ -131,7 +131,7 @@ class Fighter {
       case 'attack': this.tickMove(opp, G); break;
       case 'hit': case 'block': this.stun--; if (this.stun <= 0) this.setState(this.crouching && d <= 3 ? 'crouch' : 'idle'); break;
       case 'down': if (this.t > 38) { this.setState('getup'); } break;
-      case 'getup': if (this.t > 16) { this.inv = 8; this.setState('idle'); } break;
+      case 'getup': if (this.t > 28) { this.inv = 18; this.setState('idle'); } break;
       case 'land': if (this.t > 4) this.setState('idle'); break;
     }
     this.physics(G);
@@ -232,29 +232,32 @@ const JPOSE = {
   windup: () => ({ anim: 'stance', idx: 0, ox: -4, rot: -0.04, sx: 0.98 }),
   ring: () => ({ anim: 'ring', idx: 0, ox: 6 }),
   ringLunge: () => ({ anim: 'ring', idx: 0, ox: 20, rot: 0.05 }),
-  kickPrep: () => ({ anim: 'stance', idx: 0, rot: -0.08, ox: -4 }),
-  kick: () => ({ anim: 'stance', idx: 0, rot: -0.16, ox: 6, sx: 1.04 }),
-  crouch: () => ({ anim: 'stance', idx: 0, sy: 0.74, sx: 1.08 }),
+  kickPrep: () => ({ anim: 'kick', idx: 0 }),
+  kick: () => ({ anim: 'kick', idx: 1 }),
+  kickRec: () => ({ anim: 'kick', idx: 2 }),
+  crouch: () => ({ anim: 'crouch', idx: 0 }),
   crouchRing: () => ({ anim: 'ring', idx: 0, sy: 0.74, sx: 1.06, ox: 6 }),
-  crouchKick: () => ({ anim: 'stance', idx: 0, sy: 0.72, sx: 1.12, rot: -0.1, ox: 6 }),
-  jump: () => ({ anim: 'stance', idx: 0, sy: 0.88, rot: 0.12, oy: -10 }),
+  crouchKick: () => ({ anim: 'ckick', idx: 0, ox: 4 }),
+  jump: () => ({ anim: 'jump', idx: 0, oy: -6 }),
   jumpRing: () => ({ anim: 'ring', idx: 0, sy: 0.92, rot: 0.08, oy: -10 }),
-  jumpKick: () => ({ anim: 'stance', idx: 0, sy: 0.86, rot: -0.3, oy: -16, ox: 6 }),
+  jumpKick: () => ({ anim: 'kick', idx: 1, oy: -16, rot: -0.1 }),
 };
+// Rig frames (tools/rig_jogador.py) cut from the user's own art.
 function jogadorVisual(f) {
   const s = f.state, t = f.animT;
   if (s === 'attack' && f.move) { const fr = f.curFrame(); return JPOSE[fr.pose || (f.move.crouch ? 'crouch' : f.move.air ? 'jump' : 'stance')](); }
   switch (s) {
-    case 'walk': { const ph = t / 9; return { anim: 'stance', idx: 0, oy: -Math.abs(Math.sin(ph * Math.PI / 2)) * 5, rot: 0.035 * Math.sign(f.vx * f.facing), sx: 1 + 0.02 * Math.sin(ph * Math.PI), sy: 1 - 0.015 * Math.sin(ph * Math.PI) }; }
+    case 'walk': { const dir = Math.sign(f.vx * f.facing) || 1; const n = cyc(t, 4, 8); return { anim: 'walk', idx: dir > 0 ? n : 3 - n }; }
     case 'crouch': return JPOSE.crouch();
-    case 'jumpsq': case 'land': return { anim: 'stance', idx: 0, sy: 0.88, sx: 1.05 };
-    case 'air': return { anim: 'stance', idx: 0, sy: f.vy < 0 ? 0.9 : 0.94, rot: f.vy < 0 ? 0.1 : 0.04, oy: -8 };
-    case 'hit': return { anim: 'stance', idx: 0, rot: -0.2 * Math.max(0, 1 - f.t / 18), ox: -8 };
-    case 'block': return f.crouching ? { anim: 'stance', idx: 0, sy: 0.74, sx: 1.04, rot: -0.04 } : { anim: 'stance', idx: 0, rot: -0.07, sx: 0.96, ox: -4 };
-    case 'fall': return { anim: 'stance', idx: 0, rot: -Math.min(1.45, 0.3 + f.t * 0.08), oy: 0, lie: 1 };
-    case 'down': case 'ko': return { anim: 'stance', idx: 0, rot: -1.5, lie: 1 };
-    case 'getup': return { anim: 'stance', idx: 0, sy: 0.75, sx: 1.06 };
-    case 'win': return { anim: 'front', idx: 0 };
+    case 'jumpsq': case 'land': return { anim: 'getup', idx: 3 };
+    case 'air': return { anim: 'jump', idx: f.vy < -5 ? 0 : f.vy < 4 ? 1 : 2, oy: -6 };
+    case 'hit': return f.heavyHit ? { anim: 'hitH', idx: f.t < 7 ? 0 : 1 } : { anim: 'hitL', idx: f.t < 6 ? 0 : 1 };
+    case 'block': return f.crouching ? { anim: 'cblock', idx: 0 } : { anim: 'block', idx: 0 };
+    case 'fall': return { anim: 'fall', idx: Math.min(3, Math.floor(f.t / 5)) };
+    case 'down': return { anim: 'down', idx: f.t < 8 ? 0 : 1 };
+    case 'ko': return { anim: 'ko', idx: 0 };
+    case 'getup': return { anim: 'getup', idx: Math.min(3, Math.floor(f.t / 7)) };
+    case 'win': return { anim: 'win', idx: cyc(t, 2, 30) };
     default: { const b = Math.sin(t / 22); return { anim: 'stance', idx: 0, sy: 1 + 0.012 * b, oy: 0 }; }
   }
 }

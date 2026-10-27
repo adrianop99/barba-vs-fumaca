@@ -1,4 +1,4 @@
-const CACHE = 'bvf-v0.1-1';
+const CACHE = 'bvf-v0.2-1';
 const FILES = ['./', 'index.html', 'style.css', 'manifest.webmanifest', 'js/audio.js', 'js/input.js', 'js/stage.js', 'js/fighters.js', 'js/game.js',
   'assets/mukira/atlas.png', 'assets/mukira/atlas.json', 'assets/jogador/atlas.png', 'assets/jogador/atlas.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-180.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });

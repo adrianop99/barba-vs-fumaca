@@ -204,14 +204,15 @@ function applyHit(att, def, hit, cx, cy, dir, isProj) {
     if (def.hp <= 0) { def.setState('fall'); def.vy = -8; def.vx = dir * 3.5; }
     return 'block';
   }
+  const counter = def.state === 'attack';
   const comboing = def.state === 'hit' || def.state === 'fall';
   def.combo = comboing ? def.combo + 1 : 1;
   const scale = Math.max(0.5, 1 - 0.1 * (def.combo - 1));
   const dmg = Math.round(hit.dmg * scale);
   def.hp = Math.max(0, def.hp - dmg); def.flash = 6; def.move = null;
   if (def.combo >= 2) G.comboText[att.side] = { n: def.combo, t: 0 };
-  if (def.hp <= 0 || def.air || hit.knock) { def.setState('fall'); def.vy = def.hp <= 0 ? -10 : -7; def.vx = dir * (def.hp <= 0 ? 5 : 4); def.y = Math.min(def.y, FLOOR - 1); }
-  else { def.setState('hit'); def.stun = hit.stun; def.pushV = dir * hit.push; def.vx = 0; def.crouching = !!def.prev.down && !def.air; }
+  if (def.hp <= 0 || def.air || hit.knock || (hit.heavy && (counter || def.state === 'hit'))) { def.setState('fall'); def.vy = def.hp <= 0 ? -10 : -7; def.vx = dir * (def.hp <= 0 ? 5 : 4); def.y = Math.min(def.y, FLOOR - 1); }
+  else { def.setState('hit'); def.heavyHit = !!hit.heavy; def.stun = hit.stun; def.pushV = dir * hit.push; def.vx = 0; def.crouching = !!def.prev.down && !def.air; }
   if (isWall(def) && !isProj) att.pushV = -dir * hit.push * 0.8;
   G.sparks.push({ x: cx, y: cy, t: 0, kind: hit.heavy ? 'heavy' : 'hit' });
   SFX.play('hit', !!hit.heavy); G.hitstop = hit.heavy ? 9 : 6; G.shake = hit.heavy ? 8 : 4;
