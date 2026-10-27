@@ -252,12 +252,19 @@ function updateLoboProj(p, def) {
   }
   if (P.life && p.t > P.life) p.dead = true;
   if (p.x < -200 || p.x > VW + 200) p.dead = true;
+  if (p.dead && p.kind === 'dog') p.owner.lastDogX = Math.max(20, Math.min(VW - 20, p.x));
 }
 function drawLoboProj(p) {
-  const S = Sprites.lobo; const anim = p.kind === 'wave' ? 'wave' : p.kind === 'pack' ? 'super2' : p.stick ? 'dogatk' : 'dogfly';
+  const S = Sprites.lobo;
+  if (p.kind === 'pack') { // Alpha Pack: spectral wolves as additive light (no panel box) + the real Yorkshires on top
+    const m = S.meta.super2a[0], o = { id: 'lobo', x: p.x, y: p.y + m.h / 2, facing: p.dir, tinted: false };
+    ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = Math.min(1, p.t / 8) * (0.85 + 0.15 * Math.sin(p.t / 2)); drawFrame(ctx, o, 'super2a', 0, {}); ctx.restore();
+    drawFrame(ctx, o, 'super2n', 0, { oy: Math.sin(p.t / 3) * 3 }); return;
+  }
+  const anim = p.kind === 'wave' ? 'wave' : p.stick ? 'dogatk' : 'dogfly';
   const m = S.meta[anim][0]; const shake = p.stick ? Math.sin(p.t * 1.3) * 3 : 0;
-  ctx.save(); if (p.kind === 'pack') ctx.globalAlpha = 0.92;
-  drawFrame(ctx, { id: 'lobo', x: p.x + shake, y: p.y + m.h / 2, facing: p.dir, tinted: p.owner.tinted }, anim, 0, {});
+  ctx.save(); if (p.kind === 'wave') ctx.globalCompositeOperation = 'lighter';
+  drawFrame(ctx, { id: 'lobo', x: p.x + shake, y: p.y + m.h / 2, facing: p.dir, tinted: false }, anim, 0, {});
   ctx.restore();
 }
 G.smogOn = me => G.smog.some(s => s.victim === me && s.t < 75);
@@ -417,7 +424,7 @@ function drawSelect() {
   const info = ['Especial: chicote de barba de longo alcance (Especial ou ↘ + Soco)', 'Especial: anel de fumaça que atravessa a tela e cega (Especial ou ↘ + Soco)',
     'Especial: garra azul · Esp+← cachorro · Esp+→ investida · Esp+↓ rasteira'][G.selCur[G.selStep]];
   txt(info, VW / 2, 494, 15, '#fff', 'center', '600', 3);
-  if (CHAR_IDS[G.selCur[G.selStep]] === 'lobo') txt('Soco+Chute: ataque duplo · Supers (barra ALPHA): Especial+Soco · Especial+Chute', VW / 2, 516, 14, '#bfe8ff', 'center', '600', 3);
+  if (CHAR_IDS[G.selCur[G.selStep]] === 'lobo') txt('Soco+Chute: ataque duplo · Supers (barra ALPHA): Especial+Soco · Especial+Chute · botão SUPER', VW / 2, 516, 14, '#bfe8ff', 'center', '600', 3);
   button('back', '‹', 20, VH - 64, 50, 48, false);
 }
 function drawResult() {
@@ -478,6 +485,7 @@ Input.setupTouch();
 let last = performance.now(), acc = 0;
 function step() {
   G.frame++;
+  { const f0 = G.fighters && G.fighters[0], on = G.scene === 'fight' && f0 && f0.id === 'lobo' && f0.meter >= 100; if (on !== G._superBtn) { G._superBtn = on; document.getElementById('bSuper').classList.toggle('hidden', !on); } }
   handleMenuKeys();
   if (G.scene === 'fight' && !G.paused) updateFight();
 }

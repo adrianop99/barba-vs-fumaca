@@ -11,6 +11,8 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none
 #bPunch{left:0;bottom:6px;background:rgba(220,60,40,.55)}
 #bKick{left:88px;bottom:0;background:rgba(40,120,230,.55)}
 #bSpecial{left:44px;top:0;width:90px;height:72px;border-radius:36px;background:rgba(240,180,30,.6)}
+#bSuper{left:-70px;top:-6px;width:72px;height:56px;border-radius:28px;font-size:13px;background:rgba(40,160,255,.75);box-shadow:0 0 14px rgba(90,200,255,.9);animation:sp .7s ease-in-out infinite alternate}
+@keyframes sp{to{box-shadow:0 0 4px rgba(90,200,255,.4)}}
 #topbar{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:10px;flex-direction:row-reverse}
 #topbar.corner{left:auto;transform:none;right:calc(env(safe-area-inset-right) + 10px)}
 #topbar button{width:40px;height:34px;border-radius:8px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.45);color:#fff;font-size:16px;-webkit-tap-highlight-color:transparent}

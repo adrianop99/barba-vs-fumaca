@@ -50,14 +50,14 @@ const CHARS = {
       jp: mv({ anim: 'jab', air: 1, frames: [{ f: 0, d: 3, anim: 'jump' }, { f: 0, d: 30, a: 1, v: { oy: -14 } }], hit: { x0: 20, x1: 90, y0: -170, y1: -110, dmg: 55, stun: 16, bstun: 10, push: 4, lvl: 'high' }, sfx: 'whoosh' }),
       jk: mv({ anim: 'lowk', air: 1, frames: [{ f: 0, d: 4, anim: 'jump' }, { f: 0, d: 30, a: 1, v: { oy: -40 } }], hit: { x0: 35, x1: 140, y0: -120, y1: -50, dmg: 65, stun: 17, bstun: 11, push: 5, lvl: 'high' }, sfx: 'whoosh' }),
       slash: mv({ anim: 'slash', special: 1, frames: [{ f: 0, d: 9, anim: 'fierce' }, { f: 0, d: 14, spawn: 'wave', sfx: 'whip' }, { f: 0, d: 10, anim: 'guard' }], hit: null }),
-      throw: mv({ anim: 'throw', special: 1, frames: [{ f: 0, d: 8, anim: 'strong' }, { f: 0, d: 20, spawn: 'dog', sfx: 'bark' }, { f: 0, d: 6, anim: 'guard' }], hit: null }),
+      throw: mv({ anim: 'throw', special: 1, frames: [{ f: 0, d: 8, anim: 'throwhold' }, { f: 0, d: 20, spawn: 'dog', sfx: 'bark' }, { f: 0, d: 6, anim: 'guard' }], hit: null }),
       rush: mv({ anim: 'rush', special: 1, frames: [{ f: 0, d: 8, anim: 'crouch' }, { f: 0, d: 16, a: 1, vx: 9, sfx: 'whoosh' }, { f: 0, d: 16, anim: 'guard', vx: 0 }],
         hit: { x0: 10, x1: 150, y0: -160, y1: -40, dmg: 90, stun: 22, bstun: 14, push: 10, heavy: 1, chip: 10, knock: 1 } }),
       sweep: mv({ anim: 'sweep', special: 1, crouch: 1, frames: [{ f: 0, d: 9, anim: 'crouch' }, { f: 0, d: 12, a: 1, sfx: 'bark' }, { f: 0, d: 16, anim: 'crouch' }],
         hit: { x0: 60, x1: 270, y0: -70, y1: 0, dmg: 70, stun: 20, bstun: 12, push: 8, lvl: 'low', chip: 8, knock: 1 } }),
       double: mv({ anim: 'double', special: 1, frames: [{ f: 0, d: 10, anim: 'strong' }, { f: 0, d: 12, a: 1, sfx: 'bark' }, { f: 0, d: 20, anim: 'guard' }],
         hit: { x0: 30, x1: 230, y0: -150, y1: -30, dmg: 100, stun: 22, bstun: 14, push: 10, heavy: 1, chip: 12, knock: 1 } }),
-      super1: mv({ anim: 'super1', special: 1, frames: [{ f: 0, d: 6, anim: 'guard' }, { f: 0, d: 10, a: 1, rh: 1, vx: 7 }, { f: 0, d: 10, a: 1, rh: 1, vx: 7 }, { f: 0, d: 10, a: 1, rh: 1, vx: 7, hb: { knock: 1, dmg: 90, heavy: 1, push: 10 } }, { f: 0, d: 18, anim: 'claw', vx: 0 }],
+      super1: mv({ anim: 'fierce', special: 1, frames: [{ f: 0, d: 6, anim: 'guard' }, { f: 0, d: 10, a: 1, rh: 1, vx: 7, anim: 'fierce' }, { f: 0, d: 10, a: 1, rh: 1, vx: 7, anim: 'claw' }, { f: 0, d: 10, a: 1, rh: 1, vx: 7, anim: 'strong', hb: { knock: 1, dmg: 90, heavy: 1, push: 10 } }, { f: 0, d: 18, anim: 'claw', vx: 0 }],
         hit: { x0: 0, x1: 220, y0: -190, y1: 0, dmg: 70, stun: 26, bstun: 12, push: 3, chip: 15, nomtr: 1 } }),
       super2: mv({ anim: 'claw', special: 1, frames: [{ f: 0, d: 14, anim: 'taunt', sfx: 'howl' }, { f: 0, d: 18, spawn: 'pack' }, { f: 0, d: 16, anim: 'guard' }], hit: null }),
     },
@@ -75,7 +75,8 @@ function loadImage(src) { return new Promise((res, rej) => { const i = new Image
 async function loadSprites() {
   for (const id of ['mukira', 'jogador', 'lobo']) {
     const [img, meta] = await Promise.all([loadImage(`assets/${id}/atlas.png`), fetch(`assets/${id}/atlas.json`).then(r => r.json())]);
-    Sprites[id] = { img, meta: meta.anims, tint: makeVariant(img, id, 'tint'), white: makeVariant(img, id, 'white') };
+    const tint = id === 'lobo' ? await loadImage('assets/lobo/atlas_p2.png') : makeVariant(img, id, 'tint');
+    Sprites[id] = { img, meta: meta.anims, tint, white: makeVariant(img, id, 'white') };
   }
   Sprites.ready = true;
 }
@@ -102,7 +103,8 @@ class Fighter {
   reset(side) {
     this.x = side === 0 ? 300 : 660; this.y = FLOOR; this.vx = 0; this.vy = 0; this.facing = side === 0 ? 1 : -1;
     this.hp = this.c.hp; this.state = 'idle'; this.t = 0; this.move = null; this.mt = 0; this.hitDone = false; this.stun = 0;
-    this.crouching = false; this.cool = 0; this.flash = 0; this.dirHist = []; this.prev = {}; this.inv = 0; this.pushV = 0; this.combo = 0; this.animT = 0;
+    this.crouching = false; this.cool = 0; this.flash = 0; this.dirHist = []; this.prev = {}; this.inv = 0; this.pushV = 0; this.combo = 0; this.animT = 0; this.pt = {};
+    this.pup = this.c.lobo ? { x: this.x + this.facing * 58, face: this.facing, t: 0, away: false, ret: false, moving: false, hide: false } : null; this.trail = []; this.lastV = null; this.trans = null;
   }
   get air() { return this.y < FLOOR - 0.01 || this.state === 'air' || this.state === 'fall'; }
   dirNum(inp) { // numpad notation relative to facing
@@ -120,7 +122,9 @@ class Fighter {
   }
   curFrame() { if (!this.move) return null; let t = this.mt; for (const fr of this.move.frames) { if (t < fr.d) return fr; t -= fr.d; } return this.move.frames[this.move.frames.length - 1]; }
   update(inp, opp, G) {
-    const press = {}; for (const k of ['punch', 'kick', 'special', 'up']) press[k] = inp[k] && !this.prev[k]; this.prev = { ...inp };
+    const press = {}; for (const k of ['punch', 'kick', 'special', 'up', 'super']) press[k] = inp[k] && !this.prev[k]; this.prev = { ...inp };
+    this.tick = (this.tick || 0) + 1; for (const k of ['punch', 'kick', 'special']) if (press[k]) this.pt[k] = this.tick;
+    if (this.c.lobo) this.updPup(G);
     const d = this.dirNum(inp); this.dirHist.push(d); if (this.dirHist.length > 20) this.dirHist.shift();
     this.t++; this.animT++; if (this.cool > 0) this.cool--; if (this.flash > 0) this.flash--; if (this.inv > 0) this.inv--;
     const st = this.state;
@@ -159,7 +163,7 @@ class Fighter {
       case 'air':
         if (!this.airAtk && (press.punch || press.kick)) { this.airAtk = true; const keepVx = this.vx; this.startMove(press.punch ? 'jp' : 'jk', G); this.vx = keepVx; }
         break;
-      case 'attack': if (this.c.lobo && this.mt < 4 && !this.move.air && (press.punch || press.kick || press.special) && this.loboInput(press, d, G, true)) break; this.tickMove(opp, G); break;
+      case 'attack': if (this.c.lobo && this.mt < 6 && !this.move.air && !/^super/.test(this.moveName) && (press.punch || press.kick || press.special || press.super) && this.loboInput(press, d, G, true)) break; this.tickMove(opp, G); break;
       case 'hit': case 'block': this.stun--; if (this.stun <= 0) this.setState(this.crouching && d <= 3 ? 'crouch' : 'idle'); break;
       case 'down': if (this.t > 38) { this.setState('getup'); } break;
       case 'getup': if (this.t > 28) { this.inv = 18; this.setState('idle'); } break;
@@ -172,11 +176,16 @@ class Fighter {
   dashF() { const h = this.dirHist.slice(-16); let i = h.length - 1; if (h[i] !== 6) return false; while (i >= 0 && h[i] === 6) i--; let j = i; while (j >= 0 && h[j] !== 6 && h[j] === 5) j--; return j >= 0 && j < i && h[j] === 6 && i - j <= 10; }
   // Lobo Solitário command list (keyboard + touch friendly). cancel=true: only P+K combos/supers in the first frames of a normal.
   loboInput(press, d, G, cancel) {
-    const P = press.punch, K = press.kick, S = press.special, held = this.prev;
+    const P = press.punch, K = press.kick, S = press.special;
+    // chord = both buttons went down within 5 frames (~80 ms) of each other, in any order, on any device
+    const rec = k => press[k] || this.tick - (this.pt[k] || -99) <= 5;
+    const chord = (a, b) => (press[a] || press[b]) && rec(a) && rec(b);
+    const used = (...ks) => { for (const k of ks) this.pt[k] = -99; };
     const q = this.motion([2, 3, 6]), qb = this.motion([2, 1, 4]);
-    if (this.meter >= 200 && ((S && held.kick) || (K && held.special) || (qb && ((P && held.kick) || (K && held.punch))))) return this.doSuper(2, G);
-    if (this.meter >= 100 && ((S && held.punch) || (P && held.special) || (q && ((P && held.kick) || (K && held.punch))))) return this.doSuper(1, G);
-    if ((P && held.kick) || (K && held.punch)) { this.startMove('double', G); return true; }
+    if (press.super && this.meter >= 100) return this.doSuper(this.meter >= 200 ? 2 : 1, G);
+    if (this.meter >= 200 && (chord('special', 'kick') || (qb && chord('punch', 'kick')))) { used('special', 'kick', 'punch'); return this.doSuper(2, G); }
+    if (this.meter >= 100 && (chord('special', 'punch') || (q && chord('punch', 'kick')))) { used('special', 'punch', 'kick'); return this.doSuper(1, G); }
+    if (chord('punch', 'kick')) { used('punch', 'kick'); if (this.moveName === 'double' && this.state === 'attack') return true; this.startMove('double', G); return true; }
     if (cancel) return false;
     const ownProj = G.projectiles.some(p => p.owner === this && p.kind !== 'pack');
     let mvn = null;
@@ -188,6 +197,23 @@ class Fighter {
     if (!mvn) return false;
     if ((mvn === 'slash' || mvn === 'throw') && (this.cool > 0 || ownProj)) return S; // eat the button, nothing happens
     this.startMove(mvn, G); this.meter = Math.min(200, this.meter + 4); return true;
+  }
+  // The Yorkshire is its own sprite: follows the wolf, leaves during Dog Throw and runs back afterwards.
+  updPup(G) {
+    const p = this.pup; p.t++;
+    const away = G.projectiles.some(q => q.owner === this && q.kind === 'dog');
+    if (away) { p.away = true; p.hide = true; return; }
+    if (p.away) { p.away = false; p.ret = true; p.x = this.lastDogX != null ? this.lastDogX : p.x; }
+    const mvn = this.state === 'attack' ? this.moveName : '';
+    const winBaked = this.state === 'win' && (this.winPose || 0) % 3 !== 0;
+    p.hide = ['throw', 'rush', 'sweep', 'double', 'slash', 'super2'].includes(mvn) || winBaked;
+    if (p.hide) { p.x = this.x + this.facing * 58; p.ret = false; p.moving = false; return; }
+    const lying = ['fall', 'down', 'ko'].includes(this.state);
+    const tx = this.x + this.facing * (mvn === 'super1' ? 120 : 58);
+    const dx = tx - p.x, ad = Math.abs(dx);
+    if (lying && !p.ret) { p.moving = false; p.face = Math.sign(this.x - p.x) || p.face; return; }
+    if (ad > 2) { const sp = p.ret ? 9 : mvn === 'super1' ? 10 : Math.max(1.5, Math.min(7, ad * 0.18)); p.x += Math.sign(dx) * Math.min(ad, sp); p.moving = ad > 4; p.face = p.moving ? Math.sign(dx) : this.facing; }
+    else { p.moving = false; p.ret = false; p.face = this.facing; }
   }
   doSuper(lvl, G) { this.meter -= lvl * 100; this.startMove(lvl === 1 ? 'super1' : 'super2', G); G.superFlash = { t: 0, f: this, name: lvl === 1 ? 'LOBO E SEU AMIGO' : 'ALPHA PACK' }; G.hitstop = 26; SFX.play('howl'); return true; }
   spawnProj(kind, G) {
@@ -320,22 +346,47 @@ function jogadorVisual(f) {
     default: { const b = Math.sin(t / 22); return { anim: 'stance', idx: 0, sy: 1 + 0.012 * b, oy: 0 }; }
   }
 }
-// Lobo Solitário: every frame is a crop of the user's character sheet (tools/build_lobo.py). The Yorkshire is part of most poses.
+// Lobo Solitário: every key pose is a crop of the user's character sheet (tools/build_lobo.py). In-between motion is
+// tweened here (ease in/out offsets, squash & stretch, rotation arcs, cross-fade ghosts, afterimages) - no new art.
+const easeO = x => 1 - (1 - x) * (1 - x), clamp01 = x => Math.max(0, Math.min(1, x));
 function loboVisual(f) {
-  const s = f.state, t = f.animT;
-  if (s === 'attack' && f.move) { const fr = f.curFrame(); return { anim: fr.anim || f.move.anim, idx: 0, ...(fr.v || {}) }; }
-  switch (s) {
-    case 'walk': { const n = cyc(t, 2, 10); return { anim: 'walk', idx: n, oy: n ? -2 : 0 }; }
-    case 'crouch': case 'jumpsq': case 'land': return { anim: 'crouch', idx: 0 };
-    case 'air': return { anim: 'jump', idx: 0, oy: -6, rot: f.vy > 4 ? 0.06 : 0 };
-    case 'hit': return { anim: 'hit', idx: 0, ox: f.t < 6 ? -6 : -2, rot: f.heavyHit ? -0.08 : 0 };
-    case 'block': return f.crouching ? { anim: 'cblock', idx: 0 } : { anim: 'guard', idx: 0, ox: -3 };
-    case 'fall': return f.t < 10 ? { anim: 'hit', idx: 0, rot: -0.12 - f.t * 0.03 } : { anim: 'ko', idx: 0, oy: -6 };
-    case 'down': case 'ko': return { anim: 'ko', idx: 0 };
-    case 'getup': return f.t < 16 ? { anim: 'crouch', idx: 0 } : { anim: 'guard', idx: 0 };
-    case 'win': return { anim: ['win1', 'win2', 'taunt'][(f.winPose || 0) % 3], idx: 0 };
-    default: { const b = Math.sin(t / 22); return { anim: 'idle', idx: 0, sy: 1 + 0.01 * b }; }
+  const s = f.state, t = f.animT, st = f.t;
+  if (s === 'attack' && f.move) {
+    const m = f.move, fr = f.curFrame(), i = m.frames.indexOf(fr), p = clamp01((f.mt - f.frameStart(fr)) / fr.d);
+    const ai = m.frames.findIndex(x => x.a || x.spawn), v = { anim: fr.anim || m.anim, idx: 0, ...(fr.v || {}) };
+    if (m.air) return v;
+    if (ai < 0 || i < ai) { v.ox = (v.ox || 0) - 7 * easeO(p); v.rot = -0.035 * p; v.sy = 1 - 0.03 * p; v.sx = 1 + 0.02 * p; }       // wind-up: pull back, coil
+    else if (i === ai || fr.a) { const k = clamp01(p * 4); v.ox = (v.ox || 0) - 7 + 13 * easeO(k); v.sx = 1 + 0.05 * (1 - k); v.sy = 1 - 0.03 * (1 - k); } // snap forward
+    else { v.ox = (v.ox || 0) + 6 * (1 - easeO(p)); v.sy = 1 - 0.015 * Math.sin(p * Math.PI); }                                  // recovery settles
+    return v;
   }
+  switch (s) {
+    case 'walk': { const ph = t / 9; const n = Math.floor(ph) % 2; const dir = Math.sign(f.vx * f.facing) || 1;
+      return { anim: 'walk', idx: n, oy: -Math.abs(Math.sin(ph * Math.PI)) * 4, rot: 0.03 * dir, sy: 1 + 0.015 * Math.cos(ph * Math.PI * 2) }; }
+    case 'crouch': return { anim: 'crouch', idx: 0, sy: 1 + 0.012 * Math.sin(t / 16) };
+    case 'jumpsq': return { anim: 'crouch', idx: 0, sy: 0.9, sx: 1.06 };
+    case 'land': { const k = clamp01(st / 6); return { anim: 'crouch', idx: 0, sy: 0.86 + 0.14 * easeO(k), sx: 1.08 - 0.08 * k }; }
+    case 'air': { const up = f.vy < 0, k = clamp01(Math.abs(f.vy) / 14);
+      return { anim: 'jump', idx: 0, oy: -6, rot: Math.max(-0.14, Math.min(0.14, f.vy * 0.012)), sy: up ? 1 + 0.07 * k : 1 - 0.03 * (1 - k), sx: up ? 1 - 0.05 * k : 1 }; }
+    case 'hit': { const k = easeO(clamp01(st / 9)); return { anim: 'hit', idx: 0, ox: -12 * (1 - k) - 2, rot: (f.heavyHit ? -0.14 : -0.06) * (1 - k), sx: 1 - 0.04 * (1 - k) }; }
+    case 'block': return f.crouching ? { anim: 'cblock', idx: 0, ox: st < 6 ? -4 : -1 } : { anim: 'guard', idx: 0, ox: st < 6 ? -6 : -3, sx: st < 4 ? 0.97 : 1 };
+    case 'fall': { if (st < 16) { const r = -0.12 - easeO(st / 16) * 1.25; return { anim: 'hit', idx: 0, rot: r, lie: true }; }
+      return { anim: 'ko', idx: 0, oy: -8, rot: -0.12 }; }
+    case 'down': { const b = st < 14 ? Math.abs(Math.sin(st / 14 * Math.PI)) * 10 * (1 - st / 14) : 0; return { anim: 'ko', idx: 0, oy: -b, sy: st < 4 ? 0.9 : 1, sx: st < 4 ? 1.06 : 1 }; }
+    case 'ko': return { anim: 'ko', idx: 0, sy: 1 + 0.01 * Math.sin(t / 30) };
+    case 'getup': { if (st < 10) { const k = st / 10; return { anim: 'crouch', idx: 0, sy: 0.55 + 0.4 * easeO(k), sx: 1.1 - 0.08 * k, rot: -0.25 * (1 - k), ox: -6 }; }
+      if (st < 20) return { anim: 'crouch', idx: 0, sy: 0.95 + 0.05 * ((st - 10) / 10), ox: -3 };
+      const k = clamp01((st - 20) / 8); return { anim: 'guard', idx: 0, sy: 0.94 + 0.06 * easeO(k), ox: -3 * (1 - k) }; }
+    case 'win': return { anim: ['win1', 'win2', 'taunt'][(f.winPose || 0) % 3], idx: 0, sy: 1 + 0.012 * Math.sin(t / 20) };
+    default: { const b = Math.sin(t / 18); return { anim: 'idle', idx: 0, sy: 1 + 0.016 * b, sx: 1 - 0.006 * b, oy: 0 }; }
+  }
+}
+function drawPup(ctx, f, G) {
+  const p = f.pup; if (!p || p.hide) return;
+  const anim = p.moving ? 'pupWalk' : (f.crouching || f.state === 'crouch') ? 'pupCrouch' : 'pupIdle';
+  const idx = p.moving ? cyc(p.t, 2, 5) : 0, oy = p.moving ? -Math.abs(Math.sin(p.t / 5 * Math.PI)) * 5 : 0;
+  ctx.save(); ctx.globalAlpha = 0.3; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(p.x, FLOOR + 2, 26, 5, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  drawFrame(ctx, { id: 'lobo', x: p.x, y: FLOOR, facing: p.face, tinted: false }, anim, idx, { oy, sy: p.moving ? 1 : 1 + 0.02 * Math.sin(p.t / 14) });
 }
 function drawFighter(ctx, f, G) {
   if (!Sprites.ready) return;
@@ -344,8 +395,23 @@ function drawFighter(ctx, f, G) {
   // shadow
   ctx.save(); ctx.globalAlpha = 0.35; ctx.fillStyle = '#000'; const sw = 54 * (1 - (FLOOR - f.y) / 400);
   ctx.beginPath(); ctx.ellipse(f.x, FLOOR + 2, Math.max(16, sw), 7, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-  if (f.inv > 0 && (G.frame & 2)) return;
+  if (f.id === 'lobo') {
+    // cross-fade ghost of the previous key pose for a few frames = cheap in-between
+    if (f.lastV && f.lastV.anim !== v.anim) f.trans = { v: f.lastV, t: 0 };
+    f.lastV = v;
+    const mvn = f.state === 'attack' ? f.moveName : '';
+    const fast = (mvn === 'rush' || mvn === 'super1') && f.curFrame() && f.curFrame().a;
+    if (fast || (f.state === 'fall')) { if (G.frame % 2 === 0) f.trail.push({ x: f.x, y: f.y, v }); if (f.trail.length > 5) f.trail.shift(); } else if (f.trail.length) f.trail.shift();
+    if (mvn === 'super1' && f.mt >= 4) { const m = Sprites.lobo.meta.super1a[0]; ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.globalAlpha = Math.min(1, (f.mt - 4) / 6) * (0.8 + 0.2 * Math.sin(G.frame / 2));
+      drawFrame(ctx, { ...f, tinted: false }, 'super1a', 0, { ox: 30, oy: 0 }); ctx.restore(); }
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    f.trail.forEach((tr, i) => drawFrame(ctx, { ...f, x: tr.x, y: tr.y }, tr.v.anim, tr.v.idx, { ...tr.v, alpha: 0.10 + i * 0.05 }));
+    ctx.restore();
+    if (f.trans && f.trans.t < 4 && !(f.inv > 0 && (G.frame & 2))) { drawFrame(ctx, f, f.trans.v.anim, f.trans.v.idx, { ...f.trans.v, alpha: 0.42 * (1 - f.trans.t / 4) }); f.trans.t++; }
+  }
+  if (f.inv > 0 && (G.frame & 2)) { if (f.id === 'lobo') drawPup(ctx, f, G); return; }
   drawFrame(ctx, f, v.anim, v.idx, v);
+  if (f.id === 'lobo') drawPup(ctx, f, G);
   if (f.flash > 0) drawFrame(ctx, f, v.anim, v.idx, { ...v, white: true, alpha: Math.min(0.5, f.flash / 8) });
   // move effects (honest approximations for frames the art does not have)
   if (f.state === 'attack' && f.move && f.move.fx) { const fr = f.curFrame(); if (fr.a) drawSwoosh(ctx, f, f.move.fx, f.move.hit); }
@@ -417,6 +483,6 @@ class CPU {
     // jump-in attack
     if (me.state === 'air' && !me.airAtk && this.jumpKick && Math.abs(opp.x - me.x) < 150 && me.vy > -4) { o = { kick: true }; this.jumpKick = false; }
     // edge-trigger safety: buttons pressed only for one frame from think()
-    return { up: !!o.up, down: !!o.down, left: !!o.left, right: !!o.right, punch: !!o.punch, kick: !!o.kick, special: !!o.special };
+    return { up: !!o.up, down: !!o.down, left: !!o.left, right: !!o.right, punch: !!o.punch, kick: !!o.kick, special: !!o.special, super: false };
   }
 }
