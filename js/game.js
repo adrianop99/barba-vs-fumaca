@@ -566,4 +566,15 @@ G.debug = {
 };
 loadSprites().then(() => { go('title'); }).catch(e => { G.errors.push(String(e)); G.scene = 'loading'; console.error(e); });
 requestAnimationFrame(loop);
-if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && !qs.has('nosw')) navigator.serviceWorker.register('sw.js').catch(() => {});
+const CACHE_TAG = 'bvf-v0.5-2';
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && !qs.has('nosw')) {
+  const hadCtl = !!navigator.serviceWorker.controller; let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadCtl || reloaded || sessionStorage.getItem('bvf-sw-reload') === CACHE_TAG) return;
+    reloaded = true; sessionStorage.setItem('bvf-sw-reload', CACHE_TAG); location.reload();
+  });
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+    reg.update().catch(() => {});
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+  }).catch(() => {});
+}
