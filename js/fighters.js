@@ -104,11 +104,12 @@ const CHARS = {
 
 // ---------- sprite assets ----------
 const Sprites = { ready: false };
+const ASSET_V = '0.5.4';
 function loadImage(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('img ' + src)); i.src = src; }); }
 async function loadSprites() {
   for (const id of ['mukira', 'jogador', 'lobo', 'go']) {
-    const [img, meta] = await Promise.all([loadImage(`assets/${id}/atlas.png`), fetch(`assets/${id}/atlas.json`).then(r => r.json())]);
-    const tint = id === 'lobo' ? await loadImage('assets/lobo/atlas_p2.png') : makeVariant(img, id, 'tint');
+    const [img, meta] = await Promise.all([loadImage(`assets/${id}/atlas.png?v=${ASSET_V}`), fetch(`assets/${id}/atlas.json?v=${ASSET_V}`).then(r => r.json())]);
+    const tint = id === 'lobo' ? await loadImage(`assets/lobo/atlas_p2.png?v=${ASSET_V}`) : makeVariant(img, id, 'tint');
     Sprites[id] = { img, meta: meta.anims, tint, white: makeVariant(img, id, 'white') };
   }
   Sprites.ready = true;

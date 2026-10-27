@@ -576,7 +576,7 @@ G.debug = {
 };
 loadSprites().then(() => { go('title'); }).catch(e => { G.errors.push(String(e)); G.scene = 'loading'; console.error(e); });
 requestAnimationFrame(loop);
-const CACHE_TAG = 'bvf-v0.5-2';
+const CACHE_TAG = 'bvf-v0.5-4';
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost') && !qs.has('nosw')) {
   const hadCtl = !!navigator.serviceWorker.controller; let reloaded = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
